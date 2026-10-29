@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// Tutorial screenshots are public and read-only from the website.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /tutorial-images/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

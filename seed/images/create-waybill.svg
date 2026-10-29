@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" font-family="Segoe UI, Tahoma, Arial, sans-serif">
+  <rect width="1600" height="1000" fill="#eef1f5"/>
+  <!-- top bar -->
+  <rect width="1600" height="64" fill="#1f2937"/>
+  <rect x="24" y="16" width="92" height="32" rx="6" fill="#d6001c"/>
+  <text x="70" y="38" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">SAMPLE</text>
+  <text x="140" y="39" font-size="17" fill="#e5e7eb">Shipping System · Create Waybill</text>
+  <circle cx="1556" cy="32" r="16" fill="#4b5563"/>
+  <!-- side menu -->
+  <rect y="64" width="230" height="936" fill="#fff"/>
+  <g font-size="15" fill="#374151">
+    <rect x="12" y="84" width="206" height="40" rx="6" fill="#fdecee"/>
+    <text x="32" y="109" fill="#b30017" font-weight="600">New waybill</text>
+    <text x="32" y="159">Pickup tasks</text>
+    <text x="32" y="199">Delivery tasks</text>
+    <text x="32" y="239">Tracking</text>
+    <text x="32" y="279">Returns</text>
+    <text x="32" y="319">Reports</text>
+  </g>
+  <!-- form card -->
+  <rect x="270" y="96" width="1290" height="860" rx="10" fill="#fff" stroke="#e3e6eb"/>
+  <text x="300" y="140" font-size="22" font-weight="700" fill="#111827">Create waybill</text>
+  <g font-size="14" fill="#6b7280">
+    <text x="300" y="190">Sender name</text>
+    <text x="930" y="190">Sender phone</text>
+    <text x="300" y="290">Receiver name</text>
+    <text x="930" y="290">Receiver phone</text>
+    <text x="300" y="390">Receiver address</text>
+    <text x="300" y="530">Weight (kg)</text>
+    <text x="720" y="530">Pieces</text>
+    <text x="1140" y="530">Service type</text>
+    <text x="300" y="630">Cash on delivery (COD)</text>
+  </g>
+  <g fill="#f9fafb" stroke="#d1d5db">
+    <rect x="300" y="202" width="600" height="46" rx="6"/>
+    <rect x="930" y="202" width="600" height="46" rx="6"/>
+    <rect x="300" y="302" width="600" height="46" rx="6"/>
+    <rect x="930" y="302" width="600" height="46" rx="6"/>
+    <rect x="300" y="402" width="1230" height="86" rx="6"/>
+    <rect x="300" y="542" width="390" height="46" rx="6"/>
+    <rect x="720" y="542" width="390" height="46" rx="6"/>
+    <rect x="1140" y="542" width="390" height="46" rx="6"/>
+    <rect x="300" y="642" width="390" height="46" rx="6"/>
+  </g>
+  <g font-size="15" fill="#111827">
+    <text x="316" y="231">Ahmed Ali</text>
+    <text x="946" y="231">01X XXXX XXXX</text>
+    <text x="316" y="331">Mona Hassan</text>
+    <text x="946" y="331">01X XXXX XXXX</text>
+    <text x="316" y="431">Building 12, Street 5, District 3, City</text>
+    <text x="316" y="571">2.5</text>
+    <text x="736" y="571">1</text>
+    <text x="1156" y="571">Standard ▾</text>
+    <text x="316" y="671">350.00</text>
+  </g>
+  <rect x="1330" y="860" width="200" height="54" rx="8" fill="#d6001c"/>
+  <text x="1430" y="894" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">Save &amp; print</text>
+  <rect x="1150" y="860" width="160" height="54" rx="8" fill="#fff" stroke="#d1d5db"/>
+  <text x="1230" y="894" font-size="17" fill="#374151" text-anchor="middle">Cancel</text>
+
+  <!-- annotations -->
+  <g fill="none" stroke="#e11d48" stroke-width="4" stroke-dasharray="10 6">
+    <rect x="290" y="168" width="1250" height="190" rx="10"/>
+    <rect x="290" y="372" width="1250" height="126" rx="10"/>
+    <rect x="290" y="512" width="1250" height="86" rx="10"/>
+    <rect x="1320" y="850" width="220" height="74" rx="12"/>
+  </g>
+  <g font-size="22" font-weight="700" fill="#fff" text-anchor="middle">
+    <circle cx="290" cy="168" r="22" fill="#e11d48"/><text x="290" y="176">1</text>
+    <circle cx="290" cy="372" r="22" fill="#e11d48"/><text x="290" y="380">2</text>
+    <circle cx="290" cy="512" r="22" fill="#e11d48"/><text x="290" y="520">3</text>
+    <circle cx="1320" cy="850" r="22" fill="#e11d48"/><text x="1320" y="858">4</text>
+  </g>
+</svg>

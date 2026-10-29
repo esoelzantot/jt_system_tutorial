@@ -1,0 +1,107 @@
+.section-nav__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.section-nav__link {
+  display: block;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.section-nav__link:hover {
+  color: var(--color-text);
+}
+
+.section-nav__link[aria-current] {
+  color: var(--color-brand-text);
+}
+
+/* ---- Sidebar (wide screens) ---- */
+
+.section-nav--sidebar {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+.section-nav__heading {
+  margin: 0 0 10px;
+  padding-inline: 14px;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.section-nav--sidebar .section-nav__list {
+  display: grid;
+  gap: 2px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.section-nav--sidebar .section-nav__link {
+  padding: 9px 14px;
+  border-inline-start: 3px solid transparent;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+[dir='rtl'] .section-nav--sidebar .section-nav__link {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.section-nav--sidebar .section-nav__link:hover {
+  background: var(--color-surface-muted);
+}
+
+.section-nav--sidebar .section-nav__link[aria-current] {
+  border-inline-start-color: var(--color-brand);
+  background: var(--color-brand-soft);
+  font-weight: 600;
+}
+
+.section-nav--sidebar .section-nav__title {
+  display: block;
+  line-height: 1.5;
+}
+
+.section-nav__count {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+/* ---- Horizontal bar (small screens) ---- */
+
+.section-nav--bar .section-nav__list {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.section-nav--bar .section-nav__list::-webkit-scrollbar {
+  display: none;
+}
+
+.section-nav--bar .section-nav__link {
+  padding: 7px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.section-nav--bar .section-nav__link[aria-current] {
+  border-color: var(--color-brand);
+  background: var(--color-brand);
+  color: #fff;
+  font-weight: 600;
+}

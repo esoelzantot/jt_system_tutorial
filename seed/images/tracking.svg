@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100" font-family="Segoe UI, Tahoma, Arial, sans-serif">
+  <rect width="1800" height="1100" fill="#eef1f5"/>
+  <rect width="1800" height="64" fill="#1f2937"/>
+  <rect x="24" y="16" width="92" height="32" rx="6" fill="#d6001c"/>
+  <text x="70" y="38" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">SAMPLE</text>
+  <text x="140" y="39" font-size="17" fill="#e5e7eb">Shipping System · Tracking</text>
+
+  <rect x="40" y="96" width="1720" height="120" rx="10" fill="#fff" stroke="#e3e6eb"/>
+  <text x="70" y="140" font-size="15" fill="#6b7280">Waybill number(s) — one per line</text>
+  <rect x="70" y="152" width="1300" height="46" rx="6" fill="#f9fafb" stroke="#d1d5db"/>
+  <text x="86" y="182" font-size="16" fill="#111827">JT0000000000001</text>
+  <rect x="1400" y="152" width="160" height="46" rx="6" fill="#d6001c"/>
+  <text x="1480" y="182" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">Search</text>
+
+  <rect x="40" y="240" width="1720" height="820" rx="10" fill="#fff" stroke="#e3e6eb"/>
+  <g font-size="15" font-weight="600" fill="#374151">
+    <rect x="40" y="240" width="1720" height="56" fill="#f3f4f6"/>
+    <text x="70" y="274">Time</text>
+    <text x="370" y="274">Status</text>
+    <text x="760" y="274">Branch / hub</text>
+    <text x="1180" y="274">Operator</text>
+    <text x="1480" y="274">Note</text>
+  </g>
+  <g font-size="15" fill="#111827">
+    <text x="70" y="344">2026-10-28 09:12</text><text x="370" y="344">Created</text><text x="760" y="344">Branch A</text><text x="1180" y="344">user01</text>
+    <text x="70" y="404">2026-10-28 14:40</text><text x="370" y="404">Picked up</text><text x="760" y="404">Branch A</text><text x="1180" y="404">courier12</text>
+    <text x="70" y="464">2026-10-28 21:05</text><text x="370" y="464">Arrived at hub</text><text x="760" y="464">Sorting hub</text><text x="1180" y="464">scan02</text>
+    <text x="70" y="524">2026-10-29 06:30</text><text x="370" y="524">Departed hub</text><text x="760" y="524">Sorting hub</text><text x="1180" y="524">scan02</text>
+    <text x="70" y="584">2026-10-29 10:15</text><text x="370" y="584" fill="#b30017" font-weight="700">Out for delivery</text><text x="760" y="584">Branch B</text><text x="1180" y="584">courier31</text>
+  </g>
+  <g stroke="#e5e7eb"><path d="M40 370h1720M40 430h1720M40 490h1720M40 550h1720M40 610h1720"/></g>
+
+  <g fill="none" stroke="#e11d48" stroke-width="4" stroke-dasharray="10 6">
+    <rect x="60" y="142" width="1320" height="66" rx="10"/>
+    <rect x="1390" y="142" width="180" height="66" rx="10"/>
+    <rect x="50" y="556" width="1700" height="48" rx="8"/>
+  </g>
+  <g font-size="22" font-weight="700" fill="#fff" text-anchor="middle">
+    <circle cx="60" cy="142" r="22" fill="#e11d48"/><text x="60" y="150">1</text>
+    <circle cx="1390" cy="142" r="22" fill="#e11d48"/><text x="1390" y="150">2</text>
+    <circle cx="50" cy="556" r="22" fill="#e11d48"/><text x="50" y="564">3</text>
+  </g>
+</svg>

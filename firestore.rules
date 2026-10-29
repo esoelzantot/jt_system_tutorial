@@ -1,0 +1,16 @@
+rules_version = '2';
+
+// Tutorial content is public and read-only from the website.
+// Content is managed from the Firebase console (or Admin SDK), which bypasses these rules.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /sections/{sectionId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /questions/{questionId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

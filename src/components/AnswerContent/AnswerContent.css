@@ -1,0 +1,53 @@
+.answer {
+  display: grid;
+  gap: 12px;
+  line-height: 1.85;
+}
+
+.answer__paragraph,
+.answer__intro {
+  margin: 0;
+  white-space: pre-line;
+  text-align: start;
+}
+
+.answer__intro {
+  color: var(--color-text-secondary);
+}
+
+.answer__steps {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.answer__step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.answer__step-number {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: var(--color-brand-soft);
+  color: var(--color-brand-text);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.answer__step-text {
+  flex: 1;
+  min-width: 0;
+  white-space: pre-line;
+  text-align: start;
+}
