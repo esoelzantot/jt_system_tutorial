@@ -73,6 +73,19 @@ Rules for the data:
 
 If you don't use Firebase Storage, deploy rules with `--only firestore:rules`.
 
+**Adding content from the terminal:**
+
+```bash
+npm run content -- list                 # sections and questions with their IDs
+npm run content -- add-section          # asks for ID, title, order
+npm run content -- add-question         # asks for section, title, type, answer/steps, image, order
+npm run content -- import content.json  # many at once (same shape as seed/sample-data.json)
+```
+
+The answer type is chosen when prompted: `1` = paragraph, `2` = steps. Images can be a local file (uploaded to Vercel Blob automatically) or a URL. In `import` files, use `imageFile` (path relative to the JSON file) or `imageUrl`. Items whose `id` already exists are replaced.
+
+One-time setup: Firebase console → Project settings → Service accounts → Generate new private key. Save the JSON **outside the project folder** and put its full path in `.env.local` as `FIREBASE_SERVICE_ACCOUNT=`. The script uses the Admin SDK, which bypasses the security rules, so keep that key private.
+
 **Security:** `firestore.rules` and `storage.rules` allow public reads and deny all writes. You manage content from the Firebase console, which isn't affected by these rules. Deploy them with `firebase deploy --only firestore:rules,storage`.
 
 ## Project structure
