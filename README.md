@@ -80,7 +80,10 @@ npm run content -- list                 # sections and questions with their IDs
 npm run content -- add-section          # asks for ID, title, order
 npm run content -- add-question         # asks for section, title, type, answer/steps, image, order
 npm run content -- import content.json  # many at once (same shape as seed/sample-data.json)
+npm run content -- clear                # delete ALL sections and questions (asks you to type the project ID)
 ```
+
+`clear` cannot be undone. If `BLOB_READ_WRITE_TOKEN` is set, it then offers to delete the uploaded images in Vercel Blob (`tutorial-images/`) as well.
 
 The answer type is chosen when prompted: `1` = paragraph, `2` = steps. Images can be a local file (uploaded to Vercel Blob automatically) or a URL. In `import` files, use `imageFile` (path relative to the JSON file) or `imageUrl`. Items whose `id` already exists are replaced.
 

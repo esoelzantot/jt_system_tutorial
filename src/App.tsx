@@ -13,6 +13,8 @@ import { useTutorialData } from './hooks/useTutorialData';
 import { FirebaseConfigError } from './services/firebase';
 import type { SearchResult, TutorialImage } from './types/tutorial';
 import { questionButtonDomId, questionDomId, sectionDomId } from './utils/dom';
+import logoUrl from './assets/brand/jt-express-logo.png';
+import mascotUrl from './assets/brand/jt-rabbit.webp';
 import './App.css';
 
 const HIGHLIGHT_MS = 2200;
@@ -122,17 +124,15 @@ export function App() {
       <header ref={headerRef} className="app-header">
         <div className="app-header__inner container">
           <div className="brand">
-            <span className="brand__mark" aria-hidden="true">
-              J&amp;T
-            </span>
+            <img className="brand__logo" src={logoUrl} alt={UI.brand} width={359} height={81} />
+            <span className="brand__divider" aria-hidden="true" />
             <div className="brand__text">
               <h1 className="brand__title">{UI.title}</h1>
-              <p className="brand__subtitle">
-                <bdi>{UI.brand}</bdi> · {UI.subtitle}
-              </p>
+              <p className="brand__subtitle">{UI.subtitle}</p>
             </div>
           </div>
           <SearchBar value={query} onChange={handleQueryChange} onClear={clearSearch} disabled={!hasContent} />
+          <img className="mascot" src={mascotUrl} alt="" aria-hidden="true" width={156} height={216} />
         </div>
         {hasContent && (
           <div className="app-header__nav">

@@ -1,5 +1,5 @@
 // Shared Vercel Blob upload used by upload-image.mjs and content.mjs.
-import { put } from '@vercel/blob';
+import { del, list, put } from '@vercel/blob';
 import { readFile, stat } from 'node:fs/promises';
 import { basename, extname } from 'node:path';
 
@@ -27,6 +27,24 @@ export function getBlobToken() {
     );
   }
   return token;
+}
+
+/** URLs of every image this project uploaded (everything under tutorial-images/). */
+export async function listTutorialImages() {
+  const token = getBlobToken();
+  const urls = [];
+  let cursor;
+  do {
+    const page = await list({ prefix: `${FOLDER}/`, cursor, limit: 1000, token });
+    urls.push(...page.blobs.map((b) => b.url));
+    cursor = page.hasMore ? page.cursor : undefined;
+  } while (cursor);
+  return urls;
+}
+
+export async function deleteImages(urls) {
+  const token = getBlobToken();
+  for (let i = 0; i < urls.length; i += 100) await del(urls.slice(i, i + 100), { token });
 }
 
 /** Uploads a local image to Vercel Blob and returns its public URL. */

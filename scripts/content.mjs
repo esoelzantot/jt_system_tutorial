@@ -4,13 +4,14 @@
 //   npm run content -- add-section           add one section (asks questions)
 //   npm run content -- add-question          add one question (asks questions)
 //   npm run content -- import <file.json>    add/replace many sections and questions at once
+//   npm run content -- clear                 delete ALL sections and questions (optionally the images too)
 //
 // Needs FIREBASE_SERVICE_ACCOUNT in .env.local (see scripts/lib/firestore-admin.mjs).
 // Local images are uploaded to Vercel Blob (needs BLOB_READ_WRITE_TOKEN).
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
-import { uploadImage } from './lib/blob.mjs';
+import { deleteImages, listTutorialImages, uploadImage } from './lib/blob.mjs';
 import { getAdminDb } from './lib/firestore-admin.mjs';
 
 const SECTION_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -292,19 +293,45 @@ async function importFile(db, file) {
   console.log(`✔ Imported ${newSections.length} section(s) and ${newQuestions.length} question(s).`);
 }
 
+async function clear(db, projectId) {
+  const [sections, questions] = await Promise.all([db.collection('sections').get(), db.collection('questions').get()]);
+  if (sections.empty && questions.empty) console.log('Firestore has no sections or questions.');
+
+  if (!sections.empty || !questions.empty) {
+    console.log(`\n⚠ This permanently deletes ${sections.size} section(s) and ${questions.size} question(s) from "${projectId}".`);
+    console.log('There is no undo. To see what would be deleted, cancel and run: npm run content -- list');
+    const typed = await ask(`Type the project ID (${projectId}) to confirm: `);
+    if (typed !== projectId) return console.log('Did not match. Nothing deleted.');
+
+    await db.recursiveDelete(db.collection('questions'));
+    await db.recursiveDelete(db.collection('sections'));
+    console.log(`✔ Deleted ${sections.size} section(s) and ${questions.size} question(s).`);
+  }
+
+  // Images live in Vercel Blob, separately from Firestore. Only offered when a token is configured.
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
+  const images = await listTutorialImages();
+  if (images.length === 0) return;
+  if (!(await confirm(`\nAlso delete ${images.length} image(s) in Vercel Blob (tutorial-images/)?`))) {
+    return console.log('Images kept.');
+  }
+  await deleteImages(images);
+  console.log(`✔ Deleted ${images.length} image(s).`);
+}
+
 // ---------- main ----------
 
-const COMMANDS = { list, 'add-section': addSection, 'add-question': addQuestion, import: importFile };
+const COMMANDS = { list, 'add-section': addSection, 'add-question': addQuestion, import: importFile, clear };
 const [command, ...args] = process.argv.slice(2);
 
 try {
   if (!COMMANDS[command]) {
-    console.log('Usage: npm run content -- <list | add-section | add-question | import <file.json>>');
+    console.log('Usage: npm run content -- <list | add-section | add-question | import <file.json> | clear>');
     process.exitCode = 1;
   } else {
-    const { db, target } = getAdminDb();
+    const { db, projectId, target } = getAdminDb();
     console.log(`Firestore: ${target}`);
-    await COMMANDS[command](db, ...args);
+    await COMMANDS[command](db, ...(command === 'clear' ? [projectId] : args));
   }
 } catch (error) {
   console.error(error instanceof Cancelled ? '\nCancelled.' : `✖ ${error.message}`);
