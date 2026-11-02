@@ -41,12 +41,14 @@ export const SectionNavigation = memo(function SectionNavigation({ sections, act
                   onSelect(section.id);
                 }}
               >
-                <span className="section-nav__title" dir="auto">
-                  {section.title}
+                <span className="section-nav__text">
+                  <span className="section-nav__title" dir="auto">
+                    {section.title}
+                  </span>
+                  {variant === 'sidebar' && (
+                    <span className="section-nav__count">{UI.questionsCount(section.questions.length)}</span>
+                  )}
                 </span>
-                {variant === 'sidebar' && (
-                  <span className="section-nav__count">{UI.questionsCount(section.questions.length)}</span>
-                )}
               </a>
             </li>
           );

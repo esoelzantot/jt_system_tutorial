@@ -8,6 +8,19 @@ export const UI = {
   sectionsNav: 'أقسام الدليل',
   questionsCount: (n: number) => (n === 1 ? 'سؤال واحد' : n === 2 ? 'سؤالان' : n <= 10 ? `${n} أسئلة` : `${n} سؤالًا`),
 
+  heroEyebrow: 'مركز المساعدة',
+  heroTitleLead: 'كل ما تحتاجه لاستخدام',
+  heroTitleAccent: 'نظام الشحن بثقة',
+  heroText: 'إجراءات خطوة بخطوة، صور توضيحية من السيستم، وإجابات لأكثر الأسئلة شيوعًا — كلها في مكان واحد.',
+  statSections: 'قسم',
+  statQuestions: 'سؤال',
+  statImages: 'صورة توضيحية',
+  browseSections: 'تصفّح حسب القسم',
+  footerNote: 'دليل داخلي لنظام الشحن',
+
+  answerSteps: (n: number) => (n === 1 ? 'خطوة واحدة' : n === 2 ? 'خطوتان' : n <= 10 ? `${n} خطوات` : `${n} خطوة`),
+  answerParagraph: 'شرح',
+
   searchLabel: 'ابحث في الدليل',
   searchPlaceholder: 'ابحث عن سؤال أو إجراء أو خطوة…',
   clearSearch: 'مسح البحث',

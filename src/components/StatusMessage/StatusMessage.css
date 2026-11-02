@@ -2,19 +2,24 @@
   display: grid;
   justify-items: center;
   gap: 8px;
-  padding: 48px 24px;
+  padding: 56px 24px;
   border: 1px dashed var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(400px 160px at 50% 0%, rgb(229 30 37 / 0.06), transparent 70%),
+    var(--color-surface);
   text-align: center;
 }
 
 .status__icon {
-  width: 40px;
-  height: 40px;
-  margin-bottom: 4px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 6px;
+  padding: 14px;
+  border-radius: 20px;
+  background: var(--color-brand-soft);
   fill: none;
-  stroke: var(--color-text-muted);
+  stroke: var(--color-brand);
   stroke-width: 1.8;
   stroke-linecap: round;
 }
@@ -25,7 +30,8 @@
 
 .status__title {
   margin: 0;
-  font-size: 1.0625rem;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
   font-weight: 600;
 }
 

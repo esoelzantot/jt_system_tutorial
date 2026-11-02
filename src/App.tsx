@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Hero } from './components/Hero/Hero';
 import { ImageViewer } from './components/ImageViewer/ImageViewer';
 import { SearchBar } from './components/SearchBar/SearchBar';
 import { SearchResults } from './components/SearchResults/SearchResults';
@@ -141,6 +142,12 @@ export function App() {
         )}
       </header>
 
+      {hasContent && (
+        <div hidden={isSearching}>
+          <Hero sections={sections} onSelectSection={handleSelectSection} />
+        </div>
+      )}
+
       <div className="layout container">
         {hasContent && (
           <aside className="layout__sidebar">
@@ -184,6 +191,15 @@ export function App() {
           )}
         </main>
       </div>
+
+      <footer className="app-footer">
+        <div className="container app-footer__inner">
+          <img className="app-footer__logo" src={logoUrl} alt={UI.brand} width={359} height={81} />
+          <p className="app-footer__note">
+            {UI.footerNote} · <bdi>{UI.brand}</bdi>
+          </p>
+        </div>
+      </footer>
 
       {viewerImage && <ImageViewer image={viewerImage} onClose={closeImage} />}
     </>

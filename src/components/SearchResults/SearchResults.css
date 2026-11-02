@@ -1,77 +1,115 @@
 .search-results__header {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 4px 16px;
-  margin-bottom: 16px;
+  gap: 8px 16px;
+  margin-bottom: 18px;
 }
 
 .search-results__title {
   margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 .search-results__count {
   margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.9375rem;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--color-brand-soft);
+  color: var(--color-brand-text);
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .search-results__list {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .search-result {
+  position: relative;
   display: grid;
   gap: 6px;
   width: 100%;
-  padding: 14px 18px;
+  padding: 16px 20px;
+  padding-inline-end: 56px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
   color: inherit;
   font: inherit;
   text-align: start;
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.25s var(--ease-spring);
+}
+
+/* "Go" arrow on the end side. */
+.search-result::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 18px;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  background: var(--color-text-muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5m6-6-6 6 6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5m6-6-6 6 6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: background-color 0.2s, transform 0.25s var(--ease-spring);
+}
+
+[dir='ltr'] .search-result::after {
+  transform: scaleX(-1);
 }
 
 .search-result:hover {
-  border-color: var(--color-border-strong);
-  box-shadow: var(--shadow-sm);
+  border-color: #f0cfca;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.search-result:hover::after {
+  background: var(--color-brand);
+  transform: translateX(-3px);
 }
 
 .search-result__section {
+  justify-self: start;
+  padding: 1px 10px;
+  border-radius: 999px;
+  background: var(--color-brand-soft);
   color: var(--color-brand-text);
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
 .search-result__question {
   font-size: 1.0625rem;
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .search-result__snippet {
   color: var(--color-text-secondary);
   font-size: 0.9375rem;
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 .search-result__step {
   display: inline-block;
   margin-inline-end: 8px;
-  padding: 0 8px;
+  padding: 0 9px;
   border-radius: 999px;
-  background: var(--color-surface-muted);
-  color: var(--color-text);
-  font-size: 0.8125rem;
+  background: #fff1ea;
+  color: #b3471f;
+  font-size: 0.75rem;
   font-weight: 600;
 }

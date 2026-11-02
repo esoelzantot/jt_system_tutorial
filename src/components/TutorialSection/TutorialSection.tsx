@@ -39,10 +39,11 @@ export const TutorialSection = memo(function TutorialSection({
       </header>
 
       <div className="tutorial-section__questions">
-        {section.questions.map((question) => (
+        {section.questions.map((question, i) => (
           <QuestionAccordion
             key={question.id}
             question={question}
+            number={i + 1}
             isOpen={openIds.has(question.id)}
             isHighlighted={highlightedId === question.id}
             onToggle={onToggle}

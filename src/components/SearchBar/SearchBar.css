@@ -7,37 +7,55 @@
 
 .search-bar__icon {
   position: absolute;
-  inset-inline-start: 14px;
-  width: 20px;
-  height: 20px;
+  inset-inline-start: 6px;
+  width: 34px;
+  height: 34px;
+  padding: 8px;
+  border-radius: 50%;
+  background: var(--color-brand-soft);
   fill: none;
-  stroke: var(--color-text-muted);
-  stroke-width: 2;
+  stroke: var(--color-brand);
+  stroke-width: 2.2;
   stroke-linecap: round;
   pointer-events: none;
+  transition: background-color 0.2s, stroke 0.2s;
 }
 
 .search-bar__input {
   width: 100%;
   height: 46px;
-  padding-inline: 44px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
+  padding-inline: 50px 44px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-muted);
   color: var(--color-text);
   font: inherit;
-  font-size: 1rem;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  font-size: 0.9688rem;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 
 .search-bar__input::placeholder {
   color: var(--color-text-muted);
 }
 
+.search-bar__input:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+}
+
 .search-bar__input:focus {
   outline: none;
   border-color: var(--color-brand);
-  box-shadow: 0 0 0 3px var(--color-brand-ring);
+  background: #fff;
+  box-shadow: 0 0 0 4px var(--color-brand-ring);
+}
+
+.search-bar:focus-within .search-bar__icon {
+  background: var(--color-brand);
+  stroke: #fff;
+}
+
+.search-bar__input:disabled {
+  opacity: 0.6;
 }
 
 /* A single, consistent clear button instead of each browser's native one. */
@@ -53,7 +71,7 @@
   width: 34px;
   height: 34px;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
