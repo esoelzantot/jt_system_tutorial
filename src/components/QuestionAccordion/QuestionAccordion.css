@@ -16,32 +16,9 @@
   transform: translateY(-1px);
 }
 
-/* Brand accent bar along the start edge of an open item. */
-.qa::before {
-  content: '';
-  position: absolute;
-  inset-block: 14px;
-  inset-inline-start: -1px;
-  width: 4px;
-  border-radius: 0 4px 4px 0;
-  background: var(--gradient-brand);
-  opacity: 0;
-  transform: scaleY(0.4);
-  transition: opacity 0.25s, transform 0.3s var(--ease-spring);
-}
-
-[dir='rtl'] .qa::before {
-  border-radius: 4px 0 0 4px;
-}
-
 .qa--open {
   border-color: var(--color-border-strong);
   box-shadow: var(--shadow-md);
-}
-
-.qa--open::before {
-  opacity: 1;
-  transform: scaleY(1);
 }
 
 .qa--highlighted {
