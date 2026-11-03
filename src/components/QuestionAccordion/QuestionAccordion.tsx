@@ -1,8 +1,9 @@
 import { memo } from 'react';
 import { UI } from '../../constants/ui';
-import type { Question, TutorialImage } from '../../types/tutorial';
+import type { ExplorerTarget, Question, TutorialImage } from '../../types/tutorial';
 import { questionButtonDomId, questionDomId, questionPanelDomId } from '../../utils/dom';
 import { AnswerContent } from '../AnswerContent/AnswerContent';
+import { TicketExplorer } from '../TicketExplorer/TicketExplorer';
 import './QuestionAccordion.css';
 
 interface Props {
@@ -12,6 +13,8 @@ interface Props {
   isOpen: boolean;
   /** Briefly emphasised after arriving from a search result. */
   isHighlighted: boolean;
+  /** Search target, when it points at this question's subtypes. */
+  explorerTarget?: ExplorerTarget | null;
   onToggle: (questionId: string) => void;
   onOpenImage: (image: TutorialImage) => void;
 }
@@ -21,6 +24,7 @@ export const QuestionAccordion = memo(function QuestionAccordion({
   number,
   isOpen,
   isHighlighted,
+  explorerTarget,
   onToggle,
   onOpenImage,
 }: Props) {
@@ -28,6 +32,7 @@ export const QuestionAccordion = memo(function QuestionAccordion({
   const panelId = questionPanelDomId(question.id);
   const { image } = question;
   const isSteps = question.answerType === 'steps';
+  const isTypes = question.answerType === 'types';
 
   return (
     <div
@@ -53,9 +58,15 @@ export const QuestionAccordion = memo(function QuestionAccordion({
             <span className="qa__tags">
               <span className={`qa__tag qa__tag--${question.answerType}`}>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                  {isSteps ? <path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" /> : <path d="M4 6h16M4 12h16M4 18h10" />}
+                  {isSteps ? (
+                    <path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" />
+                  ) : isTypes ? (
+                    <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" />
+                  ) : (
+                    <path d="M4 6h16M4 12h16M4 18h10" />
+                  )}
                 </svg>
-                {isSteps ? UI.answerSteps(question.steps.length) : UI.answerParagraph}
+                {isSteps ? UI.answerSteps(question.steps.length) : isTypes ? UI.answerTypes(question.subtypes.length) : UI.answerParagraph}
               </span>
               {image && (
                 <span className="qa__tag qa__tag--image">
@@ -79,8 +90,8 @@ export const QuestionAccordion = memo(function QuestionAccordion({
       {/* Collapsed panels stay mounted (for the height transition) but are inert. */}
       <div id={panelId} role="region" aria-labelledby={buttonId} className="qa__panel" inert={!isOpen}>
         <div className="qa__panel-inner">
-          <div className="qa__body">
-            {image && (
+          <div className={`qa__body${isTypes ? ' qa__body--wide' : ''}`}>
+            {image && !isTypes && (
               <figure className="qa__figure">
                 <button
                   type="button"
@@ -113,7 +124,11 @@ export const QuestionAccordion = memo(function QuestionAccordion({
                 <figcaption className="qa__caption">{UI.imageHint}</figcaption>
               </figure>
             )}
-            <AnswerContent question={question} />
+            {isTypes ? (
+              <TicketExplorer question={question} target={explorerTarget} onOpenImage={onOpenImage} />
+            ) : (
+              <AnswerContent question={question} />
+            )}
           </div>
         </div>
       </div>

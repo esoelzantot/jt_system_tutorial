@@ -108,6 +108,11 @@
   color: #b3471f;
 }
 
+.qa__tag--types {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-text);
+}
+
 .qa__tag--image {
   background: #eef4ff;
   color: #3657b8;
@@ -164,6 +169,12 @@
   grid-template-rows: 1fr;
 }
 
+/* Opened from a search result: full height at once, so the scroll to it isn't cut short
+   by a page that is still growing (matters for questions near the end of the page). */
+.qa--highlighted .qa__panel {
+  transition: none;
+}
+
 .qa__panel-inner {
   min-height: 0;
   overflow: hidden;
@@ -182,6 +193,11 @@
   padding: 18px 0 22px;
   padding-inline-start: 48px; /* lines answers up with the title, past the number */
   border-top: 1px dashed var(--color-border);
+}
+
+/* The ticket explorer needs the full card width. */
+.qa__body--wide {
+  padding-inline-start: 0;
 }
 
 .qa__figure {

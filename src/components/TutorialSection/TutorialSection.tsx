@@ -3,7 +3,6 @@ import { UI } from '../../constants/ui';
 import type { ExplorerTarget, Section, TutorialImage } from '../../types/tutorial';
 import { sectionDomId } from '../../utils/dom';
 import { QuestionAccordion } from '../QuestionAccordion/QuestionAccordion';
-import { TicketExplorer } from '../TicketExplorer/TicketExplorer';
 import './TutorialSection.css';
 
 interface Props {
@@ -26,9 +25,6 @@ export const TutorialSection = memo(function TutorialSection({
   onOpenImage,
 }: Props) {
   const headingId = `${sectionDomId(section.id)}-heading`;
-  const mainTypes = section.questions.filter((q) => q.answerType === 'types');
-  const questions = section.questions.filter((q) => q.answerType !== 'types');
-  const target = mainTypes.some((q) => q.id === explorerTarget?.questionId) ? explorerTarget : null;
 
   return (
     <section id={sectionDomId(section.id)} className="tutorial-section" aria-labelledby={headingId}>
@@ -44,18 +40,15 @@ export const TutorialSection = memo(function TutorialSection({
         </div>
       </header>
 
-      {mainTypes.length > 0 && (
-        <TicketExplorer mainTypes={mainTypes} target={target} highlightedId={highlightedId} onOpenImage={onOpenImage} />
-      )}
-
       <div className="tutorial-section__questions">
-        {questions.map((question, i) => (
+        {section.questions.map((question, i) => (
           <QuestionAccordion
             key={question.id}
             question={question}
             number={i + 1}
             isOpen={openIds.has(question.id)}
             isHighlighted={highlightedId === question.id}
+            explorerTarget={explorerTarget?.questionId === question.id ? explorerTarget : null}
             onToggle={onToggle}
             onOpenImage={onOpenImage}
           />

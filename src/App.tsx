@@ -18,7 +18,7 @@ import logoUrl from './assets/brand/jt-express-logo.png';
 import mascotUrl from './assets/brand/jt-rabbit.webp';
 import './App.css';
 
-const HIGHLIGHT_MS = 2200;
+const HIGHLIGHT_MS = 3000;
 
 export function App() {
   const { status, sections, error, reload } = useTutorialData();
@@ -86,18 +86,18 @@ export function App() {
   const handleSelectResult = useCallback(
     ({ section, question, snippet }: SearchResult) => {
       exitSearchForNavigation();
+      setOpenIds((prev) => (prev.has(question.id) ? prev : new Set(prev).add(question.id)));
+      // Set before scrolling: a highlighted answer opens without animation (see QuestionAccordion.css).
+      setHighlightedId(question.id);
+      // A new object each time, so picking the same result twice still re-targets.
       if (question.answerType === 'types') {
-        // A new object each time, so picking the same result twice still re-targets.
         setExplorerTarget({ questionId: question.id, subtypeIndex: snippet?.subtypeIndex });
-      } else {
-        setOpenIds((prev) => (prev.has(question.id) ? prev : new Set(prev).add(question.id)));
       }
       navigate(
         section.id,
         () => document.getElementById(questionDomId(question.id)),
         () => {
           document.getElementById(questionButtonDomId(question.id))?.focus({ preventScroll: true });
-          setHighlightedId(question.id);
         },
       );
     },

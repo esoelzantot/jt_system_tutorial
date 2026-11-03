@@ -1,6 +1,5 @@
 import { useId, useMemo, useState, type FormEvent } from 'react';
 import { QuestionAccordion } from '../../components/QuestionAccordion/QuestionAccordion';
-import { TicketExplorer } from '../../components/TicketExplorer/TicketExplorer';
 import type { AnswerType, Question } from '../../types/tutorial';
 import { toDisplayableImageUrl } from '../../utils/imageUrl';
 import { A } from '../strings';
@@ -174,11 +173,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
           {tab === 'preview' ? (
             <div className="qe__preview">
               <p className="adm-hint">{A.previewHint}</p>
-              {preview.answerType === 'types' ? (
-                <TicketExplorer mainTypes={[preview]} onOpenImage={() => {}} />
-              ) : (
-                <QuestionAccordion question={preview} number={1} isOpen isHighlighted={false} onToggle={() => {}} onOpenImage={() => {}} />
-              )}
+              <QuestionAccordion question={preview} number={1} isOpen isHighlighted={false} onToggle={() => {}} onOpenImage={() => {}} />
             </div>
           ) : (
             <div className="qe__fields">
