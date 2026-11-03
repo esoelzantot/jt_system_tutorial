@@ -1,4 +1,4 @@
-import { initializeApp, type FirebaseOptions } from 'firebase/app';
+import { initializeApp, type FirebaseApp, type FirebaseOptions } from 'firebase/app';
 import { connectFirestoreEmulator, getFirestore, type Firestore } from 'firebase/firestore/lite';
 
 export class FirebaseConfigError extends Error {
@@ -34,14 +34,19 @@ function toEnvName(key: string): string {
   return key.replace(/[A-Z]/g, (c) => `_${c}`).toUpperCase();
 }
 
+let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
 
 /** Lazily initialised so configuration errors surface as a normal load error. */
+export function getFirebaseApp(): FirebaseApp {
+  app ??= initializeApp(readConfig());
+  return app;
+}
+
 export function getDb(): Firestore {
   if (db) return db;
 
-  const app = initializeApp(readConfig());
-  db = getFirestore(app);
+  db = getFirestore(getFirebaseApp());
 
   const emulatorHost: string | undefined = env.VITE_FIRESTORE_EMULATOR_HOST;
   if (emulatorHost) {

@@ -89,7 +89,35 @@ The answer type is chosen when prompted: `1` = paragraph, `2` = steps. Images ca
 
 One-time setup: Firebase console → Project settings → Service accounts → Generate new private key. Save the JSON **outside the project folder** and put its full path in `.env.local` as `FIREBASE_SERVICE_ACCOUNT=`. The script uses the Admin SDK, which bypasses the security rules, so keep that key private.
 
-**Security:** `firestore.rules` and `storage.rules` allow public reads and deny all writes. You manage content from the Firebase console, which isn't affected by these rules. Deploy them with `firebase deploy --only firestore:rules,storage`.
+**Security:** `firestore.rules` allows public reads; writes need the dashboard's admin session (and must match the data model above). The Firebase console and Admin SDK scripts aren't affected by the rules. Deploy them with `npx firebase deploy --only firestore:rules`.
+
+## Admin dashboard (`/admin`)
+
+`https://<your-site>/admin` opens a dashboard to add, edit, reorder and delete sections and questions, with image upload (drag & drop, file picker or Ctrl+V) and a live preview. It isn't linked from the public site and is marked `noindex`.
+
+**Sign-in:** enter the admin email → a 6-digit code is emailed (valid 10 minutes, one use, max 5 wrong tries, one email per minute) → enter it. Only `ADMIN_EMAIL` can sign in; any other address gets the same "sent" message without an email.
+
+How it works:
+- `api/auth/request-code.ts` stores a salted hash of the code in Firestore (`adminLoginCodes`, unreadable from browsers) and emails it with Resend.
+- `api/auth/verify-code.ts` checks it and returns a Firebase custom token with an `admin` claim; `firestore.rules` only allows writes with that claim.
+- `api/upload-image.ts` gives the signed-in admin a short-lived Vercel Blob upload token (images only, ≤ 10 MB, `tutorial-images/` only).
+
+### One-time setup
+
+1. **Firebase Authentication:** Firebase console → Build → Authentication → *Get started* (no sign-in provider needs enabling).
+2. **Resend:** sign up at resend.com **with the admin email**, then API Keys → *Create API key*.
+3. **Vercel → Project → Settings → Environment Variables** (Production):
+   | Name | Value |
+   |---|---|
+   | `ADMIN_EMAIL` | the admin email |
+   | `RESEND_API_KEY` | the Resend key |
+   | `FIREBASE_SERVICE_ACCOUNT_JSON` | the whole service-account JSON file's content |
+   | `BLOB_READ_WRITE_TOKEN` | already there if the Blob store is connected to the project |
+4. Deploy the rules: `npx firebase deploy --only firestore:rules`, then redeploy on Vercel.
+
+### Locally
+
+`npm run dev` also serves the `api/` functions (see `vite.config.ts`). With `DEV_LOG_LOGIN_CODE=1` in `.env.local`, the code is printed in that terminal instead of being emailed.
 
 ## Project structure
 

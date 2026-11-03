@@ -9,3 +9,6 @@ dist
 # Firebase service-account keys: never commit these
 *service-account*.json
 *-firebase-adminsdk-*.json
+
+# TypeScript build cache
+*.tsbuildinfo

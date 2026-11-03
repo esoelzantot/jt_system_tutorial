@@ -1,0 +1,357 @@
+/* Shared dashboard building blocks: buttons, fields, icon buttons, dialogs, toasts. */
+
+.adm {
+  min-height: 100vh;
+  background:
+    radial-gradient(900px 360px at 100% -5%, rgb(229 30 37 / 0.06), transparent 60%),
+    var(--color-bg);
+}
+
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  padding-inline: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.2s var(--ease-spring),
+    box-shadow 0.2s,
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.adm-btn:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.adm-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.adm-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.adm-btn--primary {
+  border-color: transparent;
+  background: var(--gradient-brand);
+  box-shadow: var(--shadow-brand);
+  color: #fff;
+}
+
+.adm-btn--primary:hover:not(:disabled) {
+  border-color: transparent;
+  box-shadow: 0 10px 28px rgb(212 20 27 / 0.34);
+}
+
+.adm-btn--danger {
+  border-color: transparent;
+  background: #c0141b;
+  color: #fff;
+}
+
+.adm-btn--ghost {
+  border-color: transparent;
+  background: transparent;
+}
+
+.adm-btn--ghost:hover:not(:disabled) {
+  background: var(--color-surface-muted);
+  box-shadow: none;
+}
+
+.adm-btn--block {
+  width: 100%;
+  height: 48px;
+}
+
+.adm-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.adm-icon-btn:hover:not(:disabled) {
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+.adm-icon-btn--danger:hover:not(:disabled) {
+  background: #fdecec;
+  color: #c0141b;
+}
+
+.adm-icon-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.adm-icon-btn svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---- Form fields ---- */
+
+.adm-field {
+  display: grid;
+  gap: 7px;
+}
+
+.adm-label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.adm-label small {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.adm-input,
+.adm-textarea,
+.adm-select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9688rem;
+  line-height: 1.7;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.adm-textarea {
+  min-height: 46px;
+  resize: vertical;
+  field-sizing: content;
+}
+
+.adm-input:focus,
+.adm-textarea:focus,
+.adm-select:focus {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 4px var(--color-brand-ring);
+}
+
+.adm-input[aria-invalid='true'],
+.adm-textarea[aria-invalid='true'] {
+  border-color: #c0141b;
+}
+
+.adm-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.adm-error {
+  margin: 0;
+  color: #b3121a;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* ---- Dialogs (native <dialog>) ---- */
+
+.adm-dialog {
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 30px 80px rgb(40 10 10 / 0.25);
+}
+
+.adm-dialog::backdrop {
+  background: rgb(29 21 21 / 0.45);
+  backdrop-filter: blur(3px);
+}
+
+.adm-dialog[open] {
+  animation: adm-pop 0.25s var(--ease-spring);
+}
+
+@keyframes adm-pop {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+}
+
+.adm-dialog__body {
+  display: grid;
+  gap: 16px;
+  padding: 26px;
+}
+
+.adm-dialog__title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.adm-dialog__text {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+}
+
+.adm-dialog__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #fdecec;
+  color: #c0141b;
+}
+
+.adm-dialog__icon svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.adm-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+/* ---- Toasts ---- */
+
+.adm-toasts {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 20px;
+  z-index: 300;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.adm-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: #1d1515;
+  box-shadow: 0 12px 32px rgb(40 10 10 / 0.3);
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  animation: adm-toast-in 0.35s var(--ease-spring);
+}
+
+.adm-toast--error {
+  background: #b3121a;
+}
+
+.adm-toast svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes adm-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+}
+
+.adm-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgb(255 255 255 / 0.35);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: adm-spin 0.8s linear infinite;
+}
+
+.adm-btn:not(.adm-btn--primary):not(.adm-btn--danger) .adm-spinner {
+  border-color: var(--color-border);
+  border-top-color: var(--color-brand);
+}
+
+@keyframes adm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.adm-boot {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  color: var(--color-brand);
+}
+
+.adm-boot .adm-spinner {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+  border-color: var(--color-border);
+  border-top-color: var(--color-brand);
+}
+
+@keyframes adm-pulse {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}

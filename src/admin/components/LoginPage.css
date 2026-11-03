@@ -1,0 +1,232 @@
+.login {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: 96px 16px 48px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 1px 1px, #e9dcd8 1.2px, transparent 0) 0 0 / 22px 22px,
+    linear-gradient(160deg, #fff 0%, var(--color-bg) 55%, #fdeee9 100%);
+}
+
+.login__glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.login__glow--a {
+  top: -120px;
+  inset-inline-end: -80px;
+  width: 420px;
+  height: 420px;
+  background: rgb(229 30 37 / 0.18);
+}
+
+.login__glow--b {
+  bottom: -160px;
+  inset-inline-start: -100px;
+  width: 380px;
+  height: 380px;
+  background: rgb(255 106 61 / 0.18);
+}
+
+.login__card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: min(420px, 100%);
+  padding: 72px 32px 32px;
+  border: 1px solid rgb(236 228 225 / 0.9);
+  border-radius: var(--radius-xl);
+  background: rgb(255 255 255 / 0.88);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 30px 80px rgb(60 20 20 / 0.12);
+}
+
+/* Brand stripe on the card's top edge. */
+.login__card::before {
+  content: '';
+  position: absolute;
+  inset-inline: 28px;
+  top: -1px;
+  height: 4px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, var(--color-brand-warm), var(--color-brand-logo), var(--color-brand-deep));
+}
+
+/* The rabbit peeks over the top of the card. */
+.login__mascot {
+  position: absolute;
+  top: -84px;
+  left: 50%;
+  width: auto;
+  height: 132px;
+  margin-left: -48px;
+  filter: drop-shadow(0 10px 14px rgb(60 20 20 / 0.18));
+  animation: login-float 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes login-float {
+  50% {
+    transform: translateY(-6px) rotate(-2deg);
+  }
+}
+
+.login__logo {
+  width: auto;
+  height: 28px;
+}
+
+.login__badge {
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--color-brand-soft);
+  color: var(--color-brand-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.login__form {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.login__title {
+  margin: 0 0 4px;
+  font-size: 1.375rem;
+  text-align: center;
+}
+
+.login__subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+  text-align: center;
+}
+
+.login__email-sent {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.login__email {
+  position: relative;
+}
+
+.login__email svg {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  margin-top: -9px;
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.login__email .adm-input {
+  height: 48px;
+  padding-left: 42px;
+  border-radius: 14px;
+}
+
+.login__center {
+  text-align: center;
+}
+
+.otp {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.otp__box {
+  width: 48px;
+  height: 58px;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  caret-color: var(--color-brand);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.2s var(--ease-spring);
+}
+
+.otp__box:focus {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 4px var(--color-brand-ring);
+  transform: translateY(-2px);
+}
+
+.otp__box--filled {
+  border-color: #f0b8b2;
+  background: var(--color-brand-soft);
+}
+
+.otp__box[aria-invalid='true'] {
+  border-color: #c0141b;
+  animation: otp-shake 0.35s;
+}
+
+@keyframes otp-shake {
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+.login__links {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.login__link {
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: var(--color-brand-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login__link:disabled {
+  color: var(--color-text-muted);
+  font-weight: 500;
+  cursor: default;
+}
+
+@media (max-width: 420px) {
+  .login__card {
+    padding-inline: 20px;
+  }
+  .otp {
+    gap: 6px;
+  }
+  .otp__box {
+    width: 42px;
+    height: 52px;
+    font-size: 1.25rem;
+  }
+}

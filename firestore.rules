@@ -1,16 +1,47 @@
 rules_version = '2';
 
-// Tutorial content is public and read-only from the website.
-// Content is managed from the Firebase console (or Admin SDK), which bypasses these rules.
+// Tutorial content is public to read. Only the dashboard admin can write: the admin signs in
+// with a custom token (api/auth/verify-code.ts) that carries the `admin` claim.
+// Scripts using the Admin SDK (npm run content) bypass these rules.
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    function validSection(d) {
+      return d.keys().hasOnly(['title', 'order'])
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 200
+        && d.order is number;
+    }
+
+    function validQuestion(d) {
+      return d.keys().hasOnly(['sectionId', 'title', 'order', 'answerType', 'answerText', 'steps',
+                               'imageUrl', 'imageAlt', 'imageWidth', 'imageHeight'])
+        && d.sectionId is string && exists(/databases/$(database)/documents/sections/$(d.sectionId))
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 500
+        && d.order is number
+        && d.answerType in ['paragraph', 'steps']
+        && d.answerText is string && d.answerText.size() <= 20000
+        && d.steps is list && d.steps.size() <= 100
+        && (!('imageUrl' in d) || (d.imageUrl is string && d.imageUrl.matches('https://.*')))
+        && (!('imageAlt' in d) || d.imageAlt is string)
+        && (!('imageWidth' in d) || d.imageWidth is number)
+        && (!('imageHeight' in d) || d.imageHeight is number);
+    }
+
     match /sections/{sectionId} {
       allow read: if true;
-      allow write: if false;
+      allow create, update: if isAdmin() && validSection(request.resource.data);
+      allow delete: if isAdmin();
     }
+
     match /questions/{questionId} {
       allow read: if true;
-      allow write: if false;
+      allow create, update: if isAdmin() && validQuestion(request.resource.data);
+      allow delete: if isAdmin();
     }
+
+    // adminLoginCodes and everything else: no client access (server only).
   }
 }
