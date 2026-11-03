@@ -12,7 +12,7 @@ import { useSearch } from './hooks/useSearch';
 import { useStickyOffset } from './hooks/useStickyOffset';
 import { useTutorialData } from './hooks/useTutorialData';
 import { FirebaseConfigError } from './services/firebase';
-import type { SearchResult, TutorialImage } from './types/tutorial';
+import type { ExplorerTarget, SearchResult, TutorialImage } from './types/tutorial';
 import { questionButtonDomId, questionDomId, sectionDomId } from './utils/dom';
 import logoUrl from './assets/brand/jt-express-logo.png';
 import mascotUrl from './assets/brand/jt-rabbit.webp';
@@ -31,6 +31,7 @@ export function App() {
   const [openIds, setOpenIds] = useState<ReadonlySet<string>>(() => new Set());
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [viewerImage, setViewerImage] = useState<TutorialImage | null>(null);
+  const [explorerTarget, setExplorerTarget] = useState<ExplorerTarget | null>(null);
 
   const sectionIds = useMemo(() => sections.map((section) => section.id), [sections]);
   const hasContent = status === 'success' && sections.length > 0;
@@ -83,9 +84,14 @@ export function App() {
   );
 
   const handleSelectResult = useCallback(
-    ({ section, question }: SearchResult) => {
+    ({ section, question, snippet }: SearchResult) => {
       exitSearchForNavigation();
-      setOpenIds((prev) => (prev.has(question.id) ? prev : new Set(prev).add(question.id)));
+      if (question.answerType === 'types') {
+        // A new object each time, so picking the same result twice still re-targets.
+        setExplorerTarget({ questionId: question.id, subtypeIndex: snippet?.subtypeIndex });
+      } else {
+        setOpenIds((prev) => (prev.has(question.id) ? prev : new Set(prev).add(question.id)));
+      }
       navigate(
         section.id,
         () => document.getElementById(questionDomId(question.id)),
@@ -183,6 +189,7 @@ export function App() {
                   index={index}
                   openIds={openIds}
                   highlightedId={highlightedId}
+                  explorerTarget={explorerTarget}
                   onToggle={toggleQuestion}
                   onOpenImage={openImage}
                 />

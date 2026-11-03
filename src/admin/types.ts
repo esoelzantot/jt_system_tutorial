@@ -1,4 +1,4 @@
-import type { AnswerType } from '../types/tutorial';
+import type { AnswerType, TicketSubtype } from '../types/tutorial';
 
 export interface AdminSection {
   id: string;
@@ -15,6 +15,7 @@ export interface AdminQuestion {
   answerType: AnswerType;
   answerText: string;
   steps: string[];
+  subtypes: TicketSubtype[];
   imageUrl?: string;
   imageAlt?: string;
   imageWidth?: number;

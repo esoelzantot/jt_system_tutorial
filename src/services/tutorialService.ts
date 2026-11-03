@@ -1,5 +1,5 @@
 import { collection, getDocs, orderBy, query, type DocumentData } from 'firebase/firestore/lite';
-import type { AnswerType, Question, Section, TutorialImage } from '../types/tutorial';
+import type { AnswerType, Question, Section, TicketSubtype, TutorialImage } from '../types/tutorial';
 import { toDisplayableImageUrl } from '../utils/imageUrl';
 import { getDb } from './firebase';
 
@@ -23,10 +23,29 @@ function toImage(data: DocumentData): TutorialImage | null {
   };
 }
 
+function toSubtypes(value: unknown): TicketSubtype[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((s: DocumentData) => ({
+      title: asString(s?.title),
+      titleEn: asString(s?.titleEn),
+      meaning: asString(s?.meaning),
+      whenToUse: asString(s?.whenToUse),
+      icon: asString(s?.icon),
+    }))
+    .filter((s) => s.title);
+}
+
 function toQuestion(id: string, data: DocumentData, index: number): Question {
   const steps = Array.isArray(data.steps) ? data.steps.map(asString).filter(Boolean) : [];
-  // A "steps" answer without any steps falls back to the paragraph so nothing renders empty.
-  const answerType: AnswerType = data.answerType === 'steps' && steps.length > 0 ? 'steps' : 'paragraph';
+  const subtypes = toSubtypes(data.subtypes);
+  // An answer without its steps or subtypes falls back to the paragraph so nothing renders empty.
+  const answerType: AnswerType =
+    data.answerType === 'types' && subtypes.length > 0
+      ? 'types'
+      : data.answerType === 'steps' && steps.length > 0
+        ? 'steps'
+        : 'paragraph';
 
   return {
     id,
@@ -35,6 +54,7 @@ function toQuestion(id: string, data: DocumentData, index: number): Question {
     answerType,
     answerText: asString(data.answerText),
     steps,
+    subtypes,
     image: toImage(data),
     order: asNumber(data.order, index),
   };

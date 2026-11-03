@@ -1,12 +1,41 @@
 {
   "_note": "SAMPLE placeholder content for local testing only. Replace with the real J&T system procedures in Firestore. `imageFile` is uploaded to Storage by the seed script and replaced with `imageUrl`.",
   "sections": [
-    { "id": "getting-started", "title": "البدء واستخدام النظام", "order": 1 },
-    { "id": "waybills", "title": "إنشاء البوليصات (Waybills)", "order": 2 },
-    { "id": "pickup-delivery", "title": "الاستلام والتسليم", "order": 3 },
-    { "id": "tracking", "title": "تتبع الشحنات", "order": 4 },
-    { "id": "returns-issues", "title": "المرتجعات والمشكلات الشائعة", "order": 5 },
-    { "id": "reports", "title": "التقارير والإغلاق اليومي", "order": 6 }
+    {
+      "id": "getting-started",
+      "title": "البدء واستخدام النظام",
+      "order": 1
+    },
+    {
+      "id": "waybills",
+      "title": "إنشاء البوليصات (Waybills)",
+      "order": 2
+    },
+    {
+      "id": "pickup-delivery",
+      "title": "الاستلام والتسليم",
+      "order": 3
+    },
+    {
+      "id": "tracking",
+      "title": "تتبع الشحنات",
+      "order": 4
+    },
+    {
+      "id": "returns-issues",
+      "title": "المرتجعات والمشكلات الشائعة",
+      "order": 5
+    },
+    {
+      "id": "reports",
+      "title": "التقارير والإغلاق اليومي",
+      "order": 6
+    },
+    {
+      "id": "ticket-types",
+      "title": "أنواع التيكيتات",
+      "order": 7
+    }
   ],
   "questions": [
     {
@@ -199,6 +228,70 @@
       "title": "هل يمكن تصدير التقارير إلى Excel؟",
       "answerType": "paragraph",
       "answerText": "نعم. في أي تقرير اختر الفترة ثم اضغط «تصدير» واختر صيغة Excel. يحتوي الملف على نفس الأعمدة المعروضة في الشاشة."
+    },
+    {
+      "id": "ticket-type-change-info-request",
+      "sectionId": "ticket-types",
+      "order": 1,
+      "title": "تغيير البيانات / الطلبات (Change Information / Request)",
+      "answerType": "types",
+      "answerText": "استخدم النوع ده لما تحتاج تعدّل بيانات أو تعمل طلب خاص بشحنة أو بعقدك.",
+      "steps": [],
+      "subtypes": [
+        {
+          "title": "تغيير موعد التسليم",
+          "titleEn": "Change Delivery Time",
+          "meaning": "طلب لتغيير موعد تسليم الشحنة.",
+          "whenToUse": "لما تحب تعيد جدولة موعد تسليم شحنتك.",
+          "icon": "calendar"
+        },
+        {
+          "title": "تغيير / إضافة رقم هاتف",
+          "titleEn": "Change/Add Phone Number",
+          "meaning": "طلب لتحديث أو إضافة رقم هاتف للشحنة.",
+          "whenToUse": "لما تحتاج تغيّر رقم الهاتف الحالي أو تضيف رقم تاني.",
+          "icon": "phone"
+        },
+        {
+          "title": "تغيير بيانات العقد",
+          "titleEn": "Change Contract Information",
+          "meaning": "طلب لتحديث المعلومات في حسابك التجاري أو العقد.",
+          "whenToUse": "لما تحب تحدّث بيانات حسابك أو عقدك (مثل: اسم الشركة، العنوان، أو بيانات التواصل).",
+          "icon": "contract"
+        },
+        {
+          "title": "طلب إرجاع",
+          "titleEn": "Request for Return",
+          "meaning": "طلب لإرجاع شحنة.",
+          "whenToUse": "لما تحب ترجّع شحنة.",
+          "icon": "return"
+        }
+      ]
+    },
+    {
+      "id": "ticket-type-sample-two",
+      "sectionId": "ticket-types",
+      "order": 2,
+      "title": "نوع رئيسي تجريبي تاني",
+      "answerType": "types",
+      "answerText": "بيانات تجريبية لاختبار التبويبات.",
+      "steps": [],
+      "subtypes": [
+        {
+          "title": "مشكلة في الوزن",
+          "titleEn": "Wrong Weight",
+          "meaning": "الوزن المسجل مختلف عن الوزن الحقيقي.",
+          "whenToUse": "لما تلاقي الوزن محسوب غلط.",
+          "icon": "scale"
+        },
+        {
+          "title": "مشكلة في التحصيل",
+          "titleEn": "COD Issue",
+          "meaning": "مبلغ التحصيل مش مطابق.",
+          "whenToUse": "لما المبلغ يبقى مختلف عن المتفق عليه.",
+          "icon": "money"
+        }
+      ]
     }
   ]
 }

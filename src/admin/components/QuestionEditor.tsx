@@ -1,6 +1,7 @@
 import { useId, useMemo, useState, type FormEvent } from 'react';
 import { QuestionAccordion } from '../../components/QuestionAccordion/QuestionAccordion';
-import type { Question } from '../../types/tutorial';
+import { TicketExplorer } from '../../components/TicketExplorer/TicketExplorer';
+import type { AnswerType, Question } from '../../types/tutorial';
 import { toDisplayableImageUrl } from '../../utils/imageUrl';
 import { A } from '../strings';
 import type { AdminQuestion, AdminSection, QuestionInput } from '../types';
@@ -9,6 +10,7 @@ import { useFeedback } from './feedback';
 import { Icon } from './Icon';
 import { ImageField, type ImageValue } from './ImageField';
 import { makeStep, StepsEditor, type StepItem } from './StepsEditor';
+import { makeSubtype, SubtypesEditor, type SubtypeItem } from './SubtypesEditor';
 import './QuestionEditor.css';
 
 interface Props {
@@ -23,22 +25,24 @@ interface Props {
 interface FormState {
   sectionId: string;
   title: string;
-  answerType: 'paragraph' | 'steps';
+  answerType: AnswerType;
   answerText: string;
   intro: string;
   steps: StepItem[];
+  subtypes: SubtypeItem[];
   image: ImageValue;
 }
 
 function initialForm(q: AdminQuestion | null, sectionId: string): FormState {
-  const isSteps = q?.answerType === 'steps';
+  const hasIntro = q?.answerType === 'steps' || q?.answerType === 'types';
   return {
     sectionId,
     title: q?.title ?? '',
     answerType: q?.answerType ?? 'paragraph',
-    answerText: isSteps ? '' : (q?.answerText ?? ''),
-    intro: isSteps ? (q?.answerText ?? '') : '',
+    answerText: hasIntro ? '' : (q?.answerText ?? ''),
+    intro: hasIntro ? (q?.answerText ?? '') : '',
     steps: q?.steps.length ? q.steps.map((s) => makeStep(s)) : [makeStep()],
+    subtypes: q?.subtypes.length ? q.subtypes.map((s) => makeSubtype(s)) : [makeSubtype()],
     image: { url: q?.imageUrl ?? '', alt: q?.imageAlt ?? '', width: q?.imageWidth, height: q?.imageHeight },
   };
 }
@@ -48,14 +52,20 @@ function toInput(f: FormState): QuestionInput {
     sectionId: f.sectionId,
     title: f.title,
     answerType: f.answerType,
-    answerText: f.answerType === 'steps' ? f.intro : f.answerText,
+    answerText: f.answerType === 'paragraph' ? f.answerText : f.intro,
     steps: f.steps.map((s) => s.text),
+    subtypes: f.subtypes.map(({ key: _key, ...s }) => s),
     ...(f.image.url ? { imageUrl: f.image.url, imageAlt: f.image.alt, imageWidth: f.image.width, imageHeight: f.image.height } : {}),
   };
 }
 
 /** Comparable snapshot for "unsaved changes" detection (ignores step keys and blank steps). */
-const snapshot = (f: FormState) => JSON.stringify({ ...toInput(f), steps: f.steps.map((s) => s.text.trim()).filter(Boolean) });
+const snapshot = (f: FormState) =>
+  JSON.stringify({
+    ...toInput(f),
+    steps: f.steps.map((s) => s.text.trim()).filter(Boolean),
+    subtypes: toInput(f).subtypes.filter((s) => s.title.trim()),
+  });
 
 /** Side sheet for creating / editing a question, with a live preview. */
 export function QuestionEditor({ question, defaultSectionId, sections, onClose, onSave }: Props) {
@@ -77,6 +87,11 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
     title: !form.title.trim() ? A.required : null,
     answerText: form.answerType === 'paragraph' && !form.answerText.trim() ? A.required : null,
     steps: form.answerType === 'steps' && !form.steps.some((s) => s.text.trim()) ? A.needOneStep : null,
+    subtypes:
+      form.answerType === 'types' &&
+      (!form.subtypes.some((s) => s.title.trim()) || form.subtypes.some((s) => s.title.trim() && !s.meaning.trim()))
+        ? A.needSubtype
+        : null,
     imageUrl: form.image.url && !/^https:\/\//i.test(form.image.url) ? A.invalidUrl : null,
   };
   const hasErrors = Object.values(errors).some(Boolean);
@@ -112,9 +127,15 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
       id: 'preview',
       sectionId: input.sectionId,
       title: input.title.trim() || A.questionTitlePlaceholder,
-      answerType: input.answerType === 'steps' && input.steps.some((s) => s.trim()) ? 'steps' : 'paragraph',
+      answerType:
+        input.answerType === 'types' && input.subtypes.some((s) => s.title.trim())
+          ? 'types'
+          : input.answerType === 'steps' && input.steps.some((s) => s.trim())
+            ? 'steps'
+            : 'paragraph',
       answerText: input.answerText.trim(),
       steps: input.steps.map((s) => s.trim()).filter(Boolean),
+      subtypes: input.subtypes.filter((s) => s.title.trim()),
       image: input.imageUrl ? { url: toDisplayableImageUrl(input.imageUrl), alt: input.imageAlt || input.title, width: input.imageWidth, height: input.imageHeight } : null,
       order: 1,
     };
@@ -153,7 +174,11 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
           {tab === 'preview' ? (
             <div className="qe__preview">
               <p className="adm-hint">{A.previewHint}</p>
-              <QuestionAccordion question={preview} number={1} isOpen isHighlighted={false} onToggle={() => {}} onOpenImage={() => {}} />
+              {preview.answerType === 'types' ? (
+                <TicketExplorer mainTypes={[preview]} onOpenImage={() => {}} />
+              ) : (
+                <QuestionAccordion question={preview} number={1} isOpen isHighlighted={false} onToggle={() => {}} onOpenImage={() => {}} />
+              )}
             </div>
           ) : (
             <div className="qe__fields">
@@ -185,13 +210,17 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                   onChange={(e) => update('title', e.target.value.replace(/\n/g, ' '))}
                   autoFocus={!question}
                 />
-                {show('title') && <p className="adm-error">{show('title')}</p>}
+                {show('title') ? (
+                  <p className="adm-error">{show('title')}</p>
+                ) : (
+                  form.answerType === 'types' && <p className="adm-hint">{A.mainTypeHint}</p>
+                )}
               </div>
 
               <fieldset className="adm-field qe__fieldset">
                 <legend className="adm-label">{A.answerType}</legend>
                 <div className="qe__types">
-                  {(['paragraph', 'steps'] as const).map((type) => (
+                  {(['paragraph', 'steps', 'types'] as const).map((type) => (
                     <label key={type} className={`qe__type${form.answerType === type ? ' qe__type--active' : ''}`}>
                       <input
                         type="radio"
@@ -201,11 +230,11 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                         onChange={() => update('answerType', type)}
                       />
                       <span className="qe__type-icon">
-                        <Icon name={type === 'steps' ? 'steps' : 'paragraph'} />
+                        <Icon name={type === 'steps' ? 'steps' : type === 'types' ? 'cards' : 'paragraph'} />
                       </span>
                       <span>
-                        <strong>{type === 'steps' ? A.typeSteps : A.typeParagraph}</strong>
-                        <small>{type === 'steps' ? A.typeStepsHint : A.typeParagraphHint}</small>
+                        <strong>{type === 'steps' ? A.typeSteps : type === 'types' ? A.typeTypes : A.typeParagraph}</strong>
+                        <small>{type === 'steps' ? A.typeStepsHint : type === 'types' ? A.typeTypesHint : A.typeParagraphHint}</small>
                       </span>
                     </label>
                   ))}
@@ -244,9 +273,14 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                     />
                   </div>
                   <div className="adm-field">
-                    <span className="adm-label">{A.steps}</span>
-                    <StepsEditor steps={form.steps} onChange={(steps) => update('steps', steps)} invalid={!!show('steps')} />
+                    <span className="adm-label">{form.answerType === 'types' ? A.subtypes : A.steps}</span>
+                    {form.answerType === 'types' ? (
+                      <SubtypesEditor subtypes={form.subtypes} onChange={(subtypes) => update('subtypes', subtypes)} invalid={!!show('subtypes')} />
+                    ) : (
+                      <StepsEditor steps={form.steps} onChange={(steps) => update('steps', steps)} invalid={!!show('steps')} />
+                    )}
                     {show('steps') && <p className="adm-error">{show('steps')}</p>}
+                    {show('subtypes') && <p className="adm-error">{show('subtypes')}</p>}
                   </div>
                 </>
               )}

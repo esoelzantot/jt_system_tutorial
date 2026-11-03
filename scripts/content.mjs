@@ -15,7 +15,7 @@ import { deleteImages, listTutorialImages, uploadImage } from './lib/blob.mjs';
 import { getAdminDb } from './lib/firestore-admin.mjs';
 
 const SECTION_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const ANSWER_TYPES = ['paragraph', 'steps'];
+const ANSWER_TYPES = ['paragraph', 'steps', 'types'];
 
 // ---------- terminal input ----------
 
@@ -122,6 +122,8 @@ function toQuestionFields(q, sectionIds) {
   const steps = Array.isArray(q.steps) ? q.steps.map((s) => String(s).trim()).filter(Boolean) : [];
   if (q.answerType === 'steps' && steps.length === 0) errors.push('a "steps" answer needs at least one step');
   if (q.answerType === 'paragraph' && !q.answerText?.trim()) errors.push('a "paragraph" answer needs answerText');
+  const subtypes = Array.isArray(q.subtypes) ? q.subtypes.filter((s) => s?.title?.trim()) : [];
+  if (q.answerType === 'types' && subtypes.length === 0) errors.push('a "types" answer needs at least one subtype');
   if (errors.length) throw new Error(errors.join('; '));
 
   return {
@@ -131,6 +133,17 @@ function toQuestionFields(q, sectionIds) {
     answerType: q.answerType,
     answerText: (q.answerText ?? '').trim(),
     steps: q.answerType === 'steps' ? steps : [],
+    ...(q.answerType === 'types'
+      ? {
+          subtypes: subtypes.map((s) => ({
+            title: s.title.trim(),
+            titleEn: (s.titleEn ?? '').trim(),
+            meaning: (s.meaning ?? '').trim(),
+            whenToUse: (s.whenToUse ?? '').trim(),
+            icon: s.icon ?? 'ticket',
+          })),
+        }
+      : {}),
     ...(q.imageUrl ? { imageUrl: q.imageUrl, imageAlt: (q.imageAlt || q.title).trim() } : {}),
   };
 }

@@ -21,6 +21,14 @@ export const UI = {
   answerSteps: (n: number) => (n === 1 ? 'خطوة واحدة' : n === 2 ? 'خطوتان' : n <= 10 ? `${n} خطوات` : `${n} خطوة`),
   answerParagraph: 'شرح',
 
+  explorerSearch: 'عايز تعمل إيه؟ مثلاً: تغيير رقم الموبايل',
+  explorerNoMatches: 'مفيش نوع مطابق. جرّب كلمة تانية.',
+  explorerMainTypes: 'الأنواع الرئيسية',
+  explorerMeaning: 'ما معناها؟',
+  explorerWhen: 'متى تستخدمها؟',
+  explorerPath: 'هتختار في التيكت:',
+  explorerGuide: 'شوف الدليل كصورة',
+
   searchLabel: 'ابحث في الدليل',
   searchPlaceholder: 'ابحث عن سؤال أو إجراء أو خطوة…',
   clearSearch: 'مسح البحث',

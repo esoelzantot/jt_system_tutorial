@@ -1,4 +1,14 @@
-export type AnswerType = 'paragraph' | 'steps';
+export type AnswerType = 'paragraph' | 'steps' | 'types';
+
+/** One subtype of a ticket: a question with answerType "types" is the main type. */
+export interface TicketSubtype {
+  title: string;
+  titleEn: string;
+  meaning: string;
+  whenToUse: string;
+  /** Key from SUBTYPE_ICONS. */
+  icon: string;
+}
 
 export interface TutorialImage {
   url: string;
@@ -15,6 +25,7 @@ export interface Question {
   answerType: AnswerType;
   answerText: string;
   steps: string[];
+  subtypes: TicketSubtype[];
   image: TutorialImage | null;
   order: number;
 }
@@ -43,7 +54,13 @@ export interface SearchResult {
   sectionTitle: HighlightedText;
   questionTitle: HighlightedText;
   /** Excerpt from the answer; `stepNumber` is set when it came from a step. */
-  snippet: (HighlightedText & { stepNumber?: number }) | null;
+  snippet: (HighlightedText & { stepNumber?: number; subtypeIndex?: number }) | null;
+}
+
+/** Where the ticket explorer should jump after a search result. */
+export interface ExplorerTarget {
+  questionId: string;
+  subtypeIndex?: number;
 }
 
 /** Where to go when navigating from the menu or from a search result. */

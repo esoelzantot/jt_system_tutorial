@@ -22,6 +22,9 @@ function toFirestoreValue(value) {
   if (Array.isArray(value)) return { arrayValue: { values: value.map(toFirestoreValue) } };
   if (typeof value === 'number') return Number.isInteger(value) ? { integerValue: String(value) } : { doubleValue: value };
   if (typeof value === 'boolean') return { booleanValue: value };
+  if (typeof value === 'object') {
+    return { mapValue: { fields: Object.fromEntries(Object.entries(value).map(([k, v]) => [k, toFirestoreValue(v)])) } };
+  }
   return { stringValue: String(value) };
 }
 

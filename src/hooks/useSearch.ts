@@ -6,6 +6,7 @@ interface IndexedField {
   text: string;
   normalized: NormalizedText;
   stepNumber?: number;
+  subtypeIndex?: number;
 }
 
 interface IndexEntry {
@@ -16,10 +17,11 @@ interface IndexEntry {
   answerFields: IndexedField[];
 }
 
-const field = (text: string, stepNumber?: number): IndexedField => ({
+const field = (text: string, stepNumber?: number, subtypeIndex?: number): IndexedField => ({
   text,
   normalized: normalizeWithMap(text),
   stepNumber,
+  subtypeIndex,
 });
 
 function buildIndex(sections: Section[]): IndexEntry[] {
@@ -33,6 +35,9 @@ function buildIndex(sections: Section[]): IndexEntry[] {
       answerFields: [
         ...(question.answerText ? [field(question.answerText)] : []),
         ...question.steps.map((step, i) => field(step, i + 1)),
+        ...question.subtypes.map((s, i) =>
+          field(`${s.title}${s.titleEn ? ` (${s.titleEn})` : ''}: ${s.meaning} ${s.whenToUse}`.trim(), undefined, i),
+        ),
       ],
     }));
   });
@@ -77,6 +82,7 @@ function search(index: IndexEntry[], tokens: string[]): SearchResult[] {
           ? {
               ...makeSnippet(snippetField.text, matchedAnswer ? findRanges(snippetField.normalized, tokens) : []),
               stepNumber: snippetField.stepNumber,
+              subtypeIndex: snippetField.subtypeIndex,
             }
           : null,
       },

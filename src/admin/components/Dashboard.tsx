@@ -55,7 +55,8 @@ export function Dashboard({ email }: { email: string }) {
   const matches = useMemo(() => {
     if (tokens.length === 0) return [];
     return questions.filter((q) => {
-      const haystack = normalizeWithMap([q.title, q.answerText, ...q.steps].join(' ')).value;
+      const subtypes = q.subtypes.flatMap((s) => [s.title, s.titleEn, s.meaning, s.whenToUse]);
+      const haystack = normalizeWithMap([q.title, q.answerText, ...q.steps, ...subtypes].join(' ')).value;
       return tokens.every((t) => haystack.includes(t));
     });
   }, [questions, tokens]);
@@ -135,8 +136,12 @@ export function Dashboard({ email }: { email: string }) {
           </span>
           <span className="dq__tags">
             <span className={`dq__tag dq__tag--${q.answerType}`}>
-              <Icon name={q.answerType === 'steps' ? 'steps' : 'paragraph'} />
-              {q.answerType === 'steps' ? `${q.steps.length} ${A.typeSteps}` : A.typeParagraph}
+              <Icon name={q.answerType === 'steps' ? 'steps' : q.answerType === 'types' ? 'cards' : 'paragraph'} />
+              {q.answerType === 'steps'
+                ? `${q.steps.length} ${A.typeSteps}`
+                : q.answerType === 'types'
+                  ? A.subtypesCount(q.subtypes.length)
+                  : A.typeParagraph}
             </span>
             {q.imageUrl && (
               <span className="dq__tag dq__tag--image">

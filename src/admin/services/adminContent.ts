@@ -25,10 +25,12 @@ function toQuestion(id: string, d: DocumentData): AdminQuestion {
     id,
     sectionId: String(d.sectionId ?? ''),
     title: String(d.title ?? ''),
-    order: typeof d.order === 'number' ? d.order : 0,
-    answerType: d.answerType === 'steps' ? 'steps' : 'paragraph',
+    // Numbers typed as text in the Firebase console still sort correctly.
+    order: Number(d.order) || 0,
+    answerType: d.answerType === 'steps' || d.answerType === 'types' ? d.answerType : 'paragraph',
     answerText: String(d.answerText ?? ''),
     steps: Array.isArray(d.steps) ? d.steps.map(String) : [],
+    subtypes: Array.isArray(d.subtypes) ? d.subtypes : [],
     ...(d.imageUrl ? { imageUrl: String(d.imageUrl), imageAlt: String(d.imageAlt ?? '') } : {}),
     ...(typeof d.imageWidth === 'number' ? { imageWidth: d.imageWidth } : {}),
     ...(typeof d.imageHeight === 'number' ? { imageHeight: d.imageHeight } : {}),
@@ -80,6 +82,19 @@ function cleanQuestion(input: QuestionInput, order: number) {
     answerType: input.answerType,
     answerText: input.answerText.trim(),
     steps: input.answerType === 'steps' ? steps : [],
+    ...(input.answerType === 'types'
+      ? {
+          subtypes: input.subtypes
+            .filter((s) => s.title.trim())
+            .map((s) => ({
+              title: s.title.trim(),
+              titleEn: s.titleEn.trim(),
+              meaning: s.meaning.trim(),
+              whenToUse: s.whenToUse.trim(),
+              icon: s.icon,
+            })),
+        }
+      : {}),
     ...(input.imageUrl
       ? {
           imageUrl: input.imageUrl.trim(),
