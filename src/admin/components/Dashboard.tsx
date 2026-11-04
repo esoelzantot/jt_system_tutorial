@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react';
 import logoUrl from '../../assets/brand/jt-express-logo.png';
 import mascotUrl from '../../assets/brand/jt-rabbit.webp';
+import { TRANSLATION_LANGS } from '../../i18n/config';
+import { translationStatus } from '../../i18n/localizeContent';
+import type { SectionTranslation, Translations } from '../../types/tutorial';
 import { toDisplayableImageUrl } from '../../utils/imageUrl';
 import { findRanges, normalizeWithMap, tokenize } from '../../utils/textSearch';
 import { Highlight } from '../../components/Highlight/Highlight';
@@ -10,9 +13,9 @@ import {
   createSection,
   deleteQuestion,
   deleteSection,
-  renameSection,
   saveOrder,
   saveQuestion,
+  updateSection,
 } from '../services/adminContent';
 import { A } from '../strings';
 import type { AdminQuestion, AdminSection, QuestionInput } from '../types';
@@ -86,9 +89,9 @@ export function Dashboard({ email }: { email: string }) {
     }
   };
 
-  const onSaveSection = async (title: string) => {
+  const onSaveSection = async (title: string, translations: Translations<SectionTranslation>) => {
     const target = editing?.kind === 'section' ? editing.section : null;
-    const ok = await run(() => (target ? renameSection(target.id, title) : createSection(title, sections)), A.savedSection);
+    const ok = await run(() => (target ? updateSection(target, title, translations) : createSection(title, translations, sections)), A.savedSection);
     if (ok) setEditing(null);
   };
 
@@ -149,6 +152,18 @@ export function Dashboard({ email }: { email: string }) {
                 {A.statImages}
               </span>
             )}
+            {TRANSLATION_LANGS.map((lang) => {
+              const status = translationStatus(q, lang);
+              return (
+                <span
+                  key={lang}
+                  className={`dq__tag dq__tag--lang-${status}`}
+                  title={{ complete: A.statusComplete, partial: A.statusPartial, none: A.statusNone }[status]}
+                >
+                  {lang === 'en' ? 'EN' : '中文'}
+                </span>
+              );
+            })}
           </span>
         </button>
         {q.imageUrl && <img className="dq__thumb" src={toDisplayableImageUrl(q.imageUrl)} alt="" loading="lazy" />}

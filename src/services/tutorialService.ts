@@ -9,6 +9,8 @@ export const QUESTIONS_COLLECTION = 'questions';
 const asString = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
 const asNumber = (value: unknown, fallback: number): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+const asObject = <T,>(value: unknown): T | undefined =>
+  value && typeof value === 'object' && !Array.isArray(value) ? (value as T) : undefined;
 const asPositiveNumber = (value: unknown): number | undefined =>
   typeof value === 'number' && value > 0 ? value : undefined;
 
@@ -57,6 +59,7 @@ function toQuestion(id: string, data: DocumentData, index: number): Question {
     subtypes,
     image: toImage(data),
     order: asNumber(data.order, index),
+    translations: asObject(data.translations),
   };
 }
 
@@ -76,6 +79,7 @@ export async function fetchTutorial(): Promise<Section[]> {
     title: asString(doc.data().title),
     order: asNumber(doc.data().order, index),
     questions: [],
+    translations: asObject(doc.data().translations),
   }));
   const byId = new Map(sections.map((section) => [section.id, section]));
 

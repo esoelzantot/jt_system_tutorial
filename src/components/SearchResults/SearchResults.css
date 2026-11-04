@@ -63,11 +63,8 @@
   background: var(--color-text-muted);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5m6-6-6 6 6 6'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5m6-6-6 6 6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+  transform: scaleX(var(--dir-flip));
   transition: background-color 0.2s, transform 0.25s var(--ease-spring);
-}
-
-[dir='ltr'] .search-result::after {
-  transform: scaleX(-1);
 }
 
 .search-result:hover {
@@ -78,7 +75,7 @@
 
 .search-result:hover::after {
   background: var(--color-brand);
-  transform: translateX(-3px);
+  transform: translateX(calc(var(--dir-flip) * -3px)) scaleX(var(--dir-flip));
 }
 
 .search-result__section {

@@ -10,13 +10,14 @@ service cloud.firestore {
     }
 
     function validSection(d) {
-      return d.keys().hasOnly(['title', 'order'])
+      return d.keys().hasOnly(['title', 'order', 'translations'])
+        && (!('translations' in d) || d.translations is map)
         && d.title is string && d.title.size() > 0 && d.title.size() <= 200
         && d.order is number;
     }
 
     function validQuestion(d) {
-      return d.keys().hasOnly(['sectionId', 'title', 'order', 'answerType', 'answerText', 'steps', 'subtypes',
+      return d.keys().hasOnly(['sectionId', 'title', 'order', 'answerType', 'answerText', 'steps', 'subtypes', 'translations',
                                'imageUrl', 'imageAlt', 'imageWidth', 'imageHeight'])
         && d.sectionId is string && exists(/databases/$(database)/documents/sections/$(d.sectionId))
         && d.title is string && d.title.size() > 0 && d.title.size() <= 500
@@ -24,6 +25,7 @@ service cloud.firestore {
         && d.answerType in ['paragraph', 'steps', 'types']
         && d.answerText is string && d.answerText.size() <= 20000
         && d.steps is list && d.steps.size() <= 100
+        && (!('translations' in d) || d.translations is map)
         && (!('subtypes' in d) || (d.subtypes is list && d.subtypes.size() <= 50))
         && (!('imageUrl' in d) || (d.imageUrl is string && d.imageUrl.matches('https://.*')))
         && (!('imageAlt' in d) || d.imageAlt is string)

@@ -4,6 +4,7 @@
 //   npm run content -- add-section           add one section (asks questions)
 //   npm run content -- add-question          add one question (asks questions)
 //   npm run content -- import <file.json>    add/replace many sections and questions at once
+//   npm run content -- translations <file.json>   set English/Chinese texts (Arabic is never changed)
 //   npm run content -- clear                 delete ALL sections and questions (optionally the images too)
 //
 // Needs FIREBASE_SERVICE_ACCOUNT in .env.local (see scripts/lib/firestore-admin.mjs).
@@ -144,6 +145,7 @@ function toQuestionFields(q, sectionIds) {
           })),
         }
       : {}),
+    ...(q.translations ? { translations: q.translations } : {}),
     ...(q.imageUrl ? { imageUrl: q.imageUrl, imageAlt: (q.imageAlt || q.title).trim() } : {}),
   };
 }
@@ -297,7 +299,7 @@ async function importFile(db, file) {
   }
 
   const batch = db.batch();
-  for (const { id, ...s } of newSections) batch.set(db.collection('sections').doc(id), { title: s.title.trim(), order: s.order });
+  for (const { id, ...s } of newSections) batch.set(db.collection('sections').doc(id), { title: s.title.trim(), order: s.order, ...(s.translations ? { translations: s.translations } : {}) });
   for (const { id, fields } of questionFields) {
     const ref = id ? db.collection('questions').doc(id) : db.collection('questions').doc();
     batch.set(ref, fields);
@@ -332,14 +334,62 @@ async function clear(db, projectId) {
   console.log(`✔ Deleted ${images.length} image(s).`);
 }
 
+/**
+ * File shape: { sections: { <id>: { en: { title }, zh: { title } } },
+ *               questions: { <id>: { en: { title, answerText, steps, subtypes }, zh: {...} } } }
+ * Everything is checked against the live Arabic content before anything is written.
+ */
+async function applyTranslations(db, file) {
+  if (!file) throw new Error('Usage: npm run content -- translations <file.json>');
+  const data = JSON.parse(await readFile(resolve(file), 'utf8'));
+  const [sections, questions] = await Promise.all([loadSections(db), loadQuestions(db)]);
+  const sectionById = new Map(sections.map((s) => [s.id, s]));
+  const questionById = new Map(questions.map((q) => [q.id, q]));
+
+  const problems = [];
+  for (const id of Object.keys(data.sections ?? {})) if (!sectionById.has(id)) problems.push(`Unknown section: ${id}`);
+  for (const [id, byLang] of Object.entries(data.questions ?? {})) {
+    const q = questionById.get(id);
+    if (!q) {
+      problems.push(`Unknown question: ${id}`);
+      continue;
+    }
+    for (const [lang, tr] of Object.entries(byLang)) {
+      if (!tr.title?.trim()) problems.push(`${id}/${lang}: title is missing`);
+      if ((q.answerText ?? '').trim() && !tr.answerText?.trim()) problems.push(`${id}/${lang}: answerText is missing`);
+      if ((tr.steps?.length ?? 0) !== (q.steps?.length ?? 0)) problems.push(`${id}/${lang}: ${tr.steps?.length ?? 0} steps, Arabic has ${q.steps?.length ?? 0}`);
+      if ((tr.subtypes?.length ?? 0) !== (q.subtypes?.length ?? 0)) problems.push(`${id}/${lang}: ${tr.subtypes?.length ?? 0} subtypes, Arabic has ${q.subtypes?.length ?? 0}`);
+    }
+  }
+  const missing = questions.filter((q) => !data.questions?.[q.id]).map((q) => q.id);
+  if (missing.length) console.log(`Not in the file (left as they are): ${missing.join(', ')}`);
+  if (problems.length) throw new Error(`Nothing written:\n  ${problems.join('\n  ')}`);
+
+  const sectionCount = Object.keys(data.sections ?? {}).length;
+  const questionCount = Object.keys(data.questions ?? {}).length;
+  console.log(`\nAbout to set translations on ${sectionCount} section(s) and ${questionCount} question(s).`);
+  if (!(await confirm('Continue?'))) return console.log('Nothing written.');
+
+  const batch = db.batch();
+  for (const [id, translations] of Object.entries(data.sections ?? {})) {
+    // Number(): rules require a numeric order, and older documents may hold it as text.
+    batch.update(db.collection('sections').doc(id), { translations, order: Number(sectionById.get(id).order) });
+  }
+  for (const [id, translations] of Object.entries(data.questions ?? {})) {
+    batch.update(db.collection('questions').doc(id), { translations, order: Number(questionById.get(id).order) });
+  }
+  await batch.commit();
+  console.log(`✔ Translations saved.`);
+}
+
 // ---------- main ----------
 
-const COMMANDS = { list, 'add-section': addSection, 'add-question': addQuestion, import: importFile, clear };
+const COMMANDS = { list, 'add-section': addSection, 'add-question': addQuestion, import: importFile, translations: applyTranslations, clear };
 const [command, ...args] = process.argv.slice(2);
 
 try {
   if (!COMMANDS[command]) {
-    console.log('Usage: npm run content -- <list | add-section | add-question | import <file.json> | clear>');
+    console.log('Usage: npm run content -- <list | add-section | add-question | import <file.json> | translations <file.json> | clear>');
     process.exitCode = 1;
   } else {
     const { db, projectId, target } = getAdminDb();

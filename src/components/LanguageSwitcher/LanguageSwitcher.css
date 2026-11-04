@@ -1,0 +1,145 @@
+.lang {
+  position: relative;
+  flex: none;
+}
+
+.lang__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 46px;
+  padding-inline: 13px 11px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.lang__button:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.lang__button[aria-expanded='true'] {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 4px var(--color-brand-ring);
+}
+
+.lang__globe,
+.lang__chevron {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lang__globe {
+  width: 18px;
+  height: 18px;
+  stroke: var(--color-brand);
+  stroke-width: 1.8;
+}
+
+.lang__chevron {
+  width: 15px;
+  height: 15px;
+  stroke: var(--color-text-muted);
+  stroke-width: 2.4;
+  transition: transform 0.2s;
+}
+
+.lang__button[aria-expanded='true'] .lang__chevron {
+  transform: rotate(180deg);
+}
+
+.lang__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-end: 0;
+  z-index: 30;
+  display: grid;
+  gap: 2px;
+  min-width: 156px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  animation: lang-in 0.16s ease-out;
+}
+
+@keyframes lang-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.lang__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9375rem;
+  text-align: start;
+  cursor: pointer;
+}
+
+/* Each name uses its language's font, whatever language the page is in. */
+.lang__item:lang(zh),
+.lang__current:lang(zh) {
+  font-family: var(--font-zh);
+}
+
+.lang__item:hover,
+.lang__item:focus-visible {
+  outline: none;
+  background: var(--color-surface-muted);
+}
+
+.lang__item[aria-checked='true'] {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-text);
+  font-weight: 600;
+}
+
+.lang__item svg {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 719px) {
+  .lang__button {
+    height: 36px;
+    padding-inline: 10px 8px;
+    gap: 5px;
+    font-size: 0.8125rem;
+  }
+  /* Phones: icon only. The button's label still names the language for screen readers. */
+  .lang__current {
+    display: none;
+  }
+  .lang__globe {
+    width: 18px;
+    height: 18px;
+  }
+}

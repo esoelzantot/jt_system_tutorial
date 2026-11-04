@@ -1,0 +1,64 @@
+import type { Messages } from './ar';
+
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+export const en: Messages = {
+  brand: 'J&T Express',
+  title: 'Shipping System Guide',
+  subtitle: 'System procedures and frequently asked questions',
+  metaDescription: 'An interactive guide to the procedures and common questions of the J&T Express shipping system',
+  skipToContent: 'Skip to content',
+  chooseLanguage: 'Choose language',
+
+  sectionsNav: 'Guide sections',
+  questionsCount: (n) => plural(n, 'question', 'questions'),
+
+  heroEyebrow: 'Help Center',
+  heroTitleLead: 'Everything you need to use',
+  heroTitleAccent: 'the shipping system with confidence',
+  heroText: 'Step-by-step procedures, screenshots from the system, and answers to the most common questions, all in one place.',
+  routeOnTheWay: 'On the way',
+  routeDelivered: 'Delivered',
+  statSections: 'Sections',
+  statQuestions: 'Questions',
+  statImages: 'Screenshots',
+  browseSections: 'Browse by section',
+  footerNote: 'Shipping system guide',
+
+  answerSteps: (n) => plural(n, 'step', 'steps'),
+  answerParagraph: 'Explanation',
+  answerTypes: (n) => plural(n, 'type', 'types'),
+  imageTag: 'Screenshot',
+  notTranslated: 'Arabic only',
+
+  explorerMeaning: 'What does it mean?',
+  explorerWhen: 'When to use it?',
+  explorerPath: 'Select in the ticket:',
+  explorerGuide: 'View the guide as an image',
+
+  searchLabel: 'Search the guide',
+  searchPlaceholder: 'Search for a question, procedure or step…',
+  clearSearch: 'Clear search',
+  resultsCount: (n) => (n === 0 ? 'No results' : plural(n, 'result', 'results')),
+  resultsFor: ['Results for “', '”'],
+  stepLabel: (n) => `Step ${n}`,
+  noResultsTitle: 'No matching results',
+  noResultsHint: 'Try fewer or different words, or check the spelling.',
+
+  loading: 'Loading the guide…',
+  errorTitle: 'Couldn’t load the content',
+  errorHint: 'Check your internet connection and try again.',
+  configErrorHint: 'Firebase settings are incomplete. Copy .env.example to .env.local and fill in the values.',
+  retry: 'Try again',
+  emptyTitle: 'No content yet',
+  emptyHint: 'No sections or questions have been added to the guide yet.',
+
+  enlargeImage: 'Enlarge image',
+  imageHint: 'Click the image to view it full size',
+  viewerLabel: 'Image viewer',
+  zoomIn: 'Zoom in',
+  zoomOut: 'Zoom out',
+  resetZoom: 'Reset to original size',
+  close: 'Close',
+  imageLoadError: 'Couldn’t load the image',
+};

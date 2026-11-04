@@ -69,12 +69,20 @@ export const A = {
   editSection: 'تعديل القسم',
   sectionTitle: 'اسم القسم',
   sectionTitlePlaceholder: 'مثلاً: المحفظة',
+  sectionTitleIn: (language: string) => `الاسم بـ ${language}`,
 
   // Question editor
   newQuestion: 'سؤال جديد',
   editQuestion: 'تعديل السؤال',
   tabEdit: 'تعديل',
   tabPreview: 'معاينة',
+  contentLanguage: 'لغة المحتوى',
+  translationNote: (language: string) =>
+    `بتكتب هنا ترجمة ${language} للنصوص بس. نوع الإجابة والصورة وترتيب الخطوات بتتعدل من تبويب العربية. أي حقل فاضي هيظهر للزائر بالعربي.`,
+  translationPlaceholder: 'اكتب الترجمة…',
+  statusComplete: 'الترجمة كاملة',
+  statusPartial: 'الترجمة ناقصة',
+  statusNone: 'مش مترجم',
   section: 'القسم',
   questionTitle: 'السؤال',
   questionTitlePlaceholder: 'مثلاً: إزاي أشحن المحفظة؟',

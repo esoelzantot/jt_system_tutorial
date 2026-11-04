@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { UI } from '../../constants/ui';
+import { useI18n } from '../../i18n/I18nContext';
 import type { Section } from '../../types/tutorial';
 import { prefersReducedMotion, sectionDomId } from '../../utils/dom';
 import './Hero.css';
@@ -11,14 +11,15 @@ interface Props {
 
 /** Landing block: headline, live content stats and a tile per section. */
 export const Hero = memo(function Hero({ sections, onSelectSection }: Props) {
+  const { t } = useI18n();
   const stats = useMemo(() => {
     const questions = sections.flatMap((s) => s.questions);
     return [
-      { value: sections.length, label: UI.statSections },
-      { value: questions.length, label: UI.statQuestions },
-      { value: questions.filter((q) => q.image).length, label: UI.statImages },
+      { value: sections.length, label: t.statSections },
+      { value: questions.length, label: t.statQuestions },
+      { value: questions.filter((q) => q.image).length, label: t.statImages },
     ];
-  }, [sections]);
+  }, [sections, t]);
 
   return (
     <section className="hero" aria-labelledby="hero-title">
@@ -32,12 +33,12 @@ export const Hero = memo(function Hero({ sections, onSelectSection }: Props) {
           <div className="hero__copy">
             <span className="hero__eyebrow">
               <span className="hero__pulse" aria-hidden="true" />
-              {UI.heroEyebrow}
+              {t.heroEyebrow}
             </span>
             <h2 id="hero-title" className="hero__title">
-              {UI.heroTitleLead} <span className="hero__accent">{UI.heroTitleAccent}</span>
+              {t.heroTitleLead} <span className="hero__accent">{t.heroTitleAccent}</span>
             </h2>
-            <p className="hero__text">{UI.heroText}</p>
+            <p className="hero__text">{t.heroText}</p>
 
             <dl className="hero__stats">
               {stats.map((stat) => (
@@ -52,7 +53,7 @@ export const Hero = memo(function Hero({ sections, onSelectSection }: Props) {
           <RouteIllustration />
         </div>
 
-        <h3 className="hero__browse">{UI.browseSections}</h3>
+        <h3 className="hero__browse">{t.browseSections}</h3>
         <ol className="hero__tiles">
           {sections.map((section, index) => (
             <li key={section.id}>
@@ -70,7 +71,7 @@ export const Hero = memo(function Hero({ sections, onSelectSection }: Props) {
                 <span className="tile__title" dir="auto">
                   {section.title}
                 </span>
-                <span className="tile__meta">{UI.questionsCount(section.questions.length)}</span>
+                <span className="tile__meta">{t.questionsCount(section.questions.length)}</span>
                 <svg className="tile__arrow" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M19 12H5m6-6-6 6 6 6" />
                 </svg>
@@ -87,6 +88,7 @@ const ROUTE = 'M58 232 C 112 118, 214 274, 300 92';
 
 /** Decorative "parcel on its way" map card. */
 function RouteIllustration() {
+  const { t } = useI18n();
   const animate = !prefersReducedMotion();
 
   return (
@@ -139,13 +141,13 @@ function RouteIllustration() {
 
       <div className="route__chip route__chip--status">
         <span className="route__dot" />
-        في الطريق
+        {t.routeOnTheWay}
       </div>
       <div className="route__chip route__chip--done">
         <svg viewBox="0 0 24 24">
           <path d="m5 12.5 4.5 4.5L19 7.5" />
         </svg>
-        تم التسليم
+        {t.routeDelivered}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { UI } from '../../constants/ui';
+import { useI18n } from '../../i18n/I18nContext';
 import type { ExplorerTarget, Section, TutorialImage } from '../../types/tutorial';
 import { sectionDomId } from '../../utils/dom';
 import { QuestionAccordion } from '../QuestionAccordion/QuestionAccordion';
@@ -24,6 +24,7 @@ export const TutorialSection = memo(function TutorialSection({
   onToggle,
   onOpenImage,
 }: Props) {
+  const { t } = useI18n();
   const headingId = `${sectionDomId(section.id)}-heading`;
 
   return (
@@ -36,7 +37,7 @@ export const TutorialSection = memo(function TutorialSection({
           <h2 id={headingId} className="tutorial-section__title" dir="auto">
             {section.title}
           </h2>
-          <p className="tutorial-section__meta">{UI.questionsCount(section.questions.length)}</p>
+          <p className="tutorial-section__meta">{t.questionsCount(section.questions.length)}</p>
         </div>
       </header>
 

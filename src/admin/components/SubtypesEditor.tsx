@@ -1,15 +1,19 @@
 import { SUBTYPE_ICONS, type SubtypeIcon } from '../../components/TicketExplorer/icons';
-import type { TicketSubtype } from '../../types/tutorial';
+import type { TranslationLang } from '../../i18n/config';
+import type { SubtypeTranslation, TicketSubtype } from '../../types/tutorial';
 import { A } from '../strings';
 import { Icon } from './Icon';
 
 export interface SubtypeItem extends TicketSubtype {
   key: number;
+  /** Kept on the item so a translation follows its subtype when subtypes are reordered. */
+  tr: Record<TranslationLang, SubtypeTranslation>;
 }
 
 let nextKey = 1;
-export const makeSubtype = (s?: Partial<TicketSubtype>): SubtypeItem => ({
+export const makeSubtype = (s?: Partial<TicketSubtype>, tr: Partial<Record<TranslationLang, SubtypeTranslation>> = {}): SubtypeItem => ({
   key: nextKey++,
+  tr: { en: tr.en ?? {}, zh: tr.zh ?? {} },
   title: s?.title ?? '',
   titleEn: s?.titleEn ?? '',
   meaning: s?.meaning ?? '',

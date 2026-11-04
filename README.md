@@ -91,6 +91,22 @@ One-time setup: Firebase console → Project settings → Service accounts → G
 
 **Security:** `firestore.rules` allows public reads; writes need the dashboard's admin session (and must match the data model above). The Firebase console and Admin SDK scripts aren't affected by the rules. Deploy them with `npx firebase deploy --only firestore:rules`.
 
+## Languages
+
+The public site is available in Arabic (default, RTL), English and Simplified Chinese (LTR), from the language menu in the header.
+
+- **Choice of language:** `?lang=en` / `?lang=zh` in the link wins (so links can be shared), then the visitor's last choice, then Arabic.
+- **Interface text:** `src/i18n/messages/`. `ar.ts` defines the shape, and TypeScript fails the build if `en.ts` or `zh.ts` miss a label.
+- **Content:** Arabic stays in the normal fields; other languages live in a `translations` map on each document:
+  ```
+  translations: { en: { title, answerText, steps[], subtypes[{ title, meaning, whenToUse }], imageAlt }, zh: { ... } }
+  ```
+  `steps` and `subtypes` follow the Arabic order by index. Any missing field shows in Arabic, and the question gets an "Arabic only" tag.
+- **Editing:** in the dashboard's question editor, use the language tabs. Structure changes stay in the Arabic tab, and a translation moves with its step when steps are reordered. Colored `EN` / `中文` tags in the list show what is complete.
+- **In bulk:** `npm run content -- translations <file.json>` sets translations from a file. It checks the file against the live Arabic content first and never changes the Arabic. File shape: `{ sections: { <id>: { en: { title }, zh: { title } } }, questions: { <id>: { en: {...}, zh: {...} } } }`.
+
+The dashboard's own interface and the login email are in Arabic only.
+
 ## Admin dashboard (`/admin`)
 
 `https://<your-site>/admin` opens a dashboard to add, edit, reorder and delete sections and questions, with image upload (drag & drop, file picker or Ctrl+V) and a live preview. It isn't linked from the public site and is marked `noindex`.

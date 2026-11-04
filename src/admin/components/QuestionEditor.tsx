@@ -1,6 +1,9 @@
 import { useId, useMemo, useState, type FormEvent } from 'react';
 import { QuestionAccordion } from '../../components/QuestionAccordion/QuestionAccordion';
-import type { AnswerType, Question } from '../../types/tutorial';
+import { FixedLanguage } from '../../i18n/I18nContext';
+import { LANGUAGES, languageInfo, TRANSLATION_LANGS, type Lang, type TranslationLang } from '../../i18n/config';
+import { localizeQuestion, translationStatus } from '../../i18n/localizeContent';
+import type { AnswerType, Question, QuestionTranslation, Translations } from '../../types/tutorial';
 import { toDisplayableImageUrl } from '../../utils/imageUrl';
 import { A } from '../strings';
 import type { AdminQuestion, AdminSection, QuestionInput } from '../types';
@@ -10,6 +13,7 @@ import { Icon } from './Icon';
 import { ImageField, type ImageValue } from './ImageField';
 import { makeStep, StepsEditor, type StepItem } from './StepsEditor';
 import { makeSubtype, SubtypesEditor, type SubtypeItem } from './SubtypesEditor';
+import { TranslationFields, type TextTranslation } from './TranslationFields';
 import './QuestionEditor.css';
 
 interface Props {
@@ -30,41 +34,59 @@ interface FormState {
   steps: StepItem[];
   subtypes: SubtypeItem[];
   image: ImageValue;
+  /** Question-level translated texts; step and subtype translations live on their items. */
+  text: Record<TranslationLang, TextTranslation>;
 }
 
 function initialForm(q: AdminQuestion | null, sectionId: string): FormState {
   const hasIntro = q?.answerType === 'steps' || q?.answerType === 'types';
+  const tr = q?.translations;
+  const textOf = (lang: TranslationLang): TextTranslation => ({
+    title: tr?.[lang]?.title ?? '',
+    answerText: tr?.[lang]?.answerText ?? '',
+    imageAlt: tr?.[lang]?.imageAlt ?? '',
+  });
   return {
     sectionId,
     title: q?.title ?? '',
     answerType: q?.answerType ?? 'paragraph',
     answerText: hasIntro ? '' : (q?.answerText ?? ''),
     intro: hasIntro ? (q?.answerText ?? '') : '',
-    steps: q?.steps.length ? q.steps.map((s) => makeStep(s)) : [makeStep()],
-    subtypes: q?.subtypes.length ? q.subtypes.map((s) => makeSubtype(s)) : [makeSubtype()],
+    steps: q?.steps.length ? q.steps.map((s, i) => makeStep(s, { en: tr?.en?.steps?.[i], zh: tr?.zh?.steps?.[i] })) : [makeStep()],
+    subtypes: q?.subtypes.length
+      ? q.subtypes.map((s, i) => makeSubtype(s, { en: tr?.en?.subtypes?.[i], zh: tr?.zh?.subtypes?.[i] }))
+      : [makeSubtype()],
+    text: { en: textOf('en'), zh: textOf('zh') },
     image: { url: q?.imageUrl ?? '', alt: q?.imageAlt ?? '', width: q?.imageWidth, height: q?.imageHeight },
   };
 }
 
 function toInput(f: FormState): QuestionInput {
+  // Blank rows are dropped here, so translation indexes always match the saved Arabic list.
+  const steps = f.answerType === 'steps' ? f.steps.filter((s) => s.text.trim()) : [];
+  const subtypes = f.answerType === 'types' ? f.subtypes.filter((s) => s.title.trim()) : [];
+  const translations: Translations<QuestionTranslation> = {};
+  for (const lang of TRANSLATION_LANGS) {
+    translations[lang] = {
+      ...f.text[lang],
+      steps: steps.map((s) => s.tr[lang]),
+      subtypes: subtypes.map((s) => s.tr[lang]),
+    };
+  }
   return {
     sectionId: f.sectionId,
     title: f.title,
     answerType: f.answerType,
     answerText: f.answerType === 'paragraph' ? f.answerText : f.intro,
-    steps: f.steps.map((s) => s.text),
-    subtypes: f.subtypes.map(({ key: _key, ...s }) => s),
+    steps: steps.map((s) => s.text),
+    subtypes: subtypes.map(({ key: _key, tr: _tr, ...s }) => s),
+    translations,
     ...(f.image.url ? { imageUrl: f.image.url, imageAlt: f.image.alt, imageWidth: f.image.width, imageHeight: f.image.height } : {}),
   };
 }
 
 /** Comparable snapshot for "unsaved changes" detection (ignores step keys and blank steps). */
-const snapshot = (f: FormState) =>
-  JSON.stringify({
-    ...toInput(f),
-    steps: f.steps.map((s) => s.text.trim()).filter(Boolean),
-    subtypes: toInput(f).subtypes.filter((s) => s.title.trim()),
-  });
+const snapshot = (f: FormState) => JSON.stringify(toInput(f));
 
 /** Side sheet for creating / editing a question, with a live preview. */
 export function QuestionEditor({ question, defaultSectionId, sections, onClose, onSave }: Props) {
@@ -74,6 +96,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
   );
   const [initial] = useState(() => snapshot(form));
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
+  const [editLang, setEditLang] = useState<Lang>('ar');
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -109,7 +132,9 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
     e.preventDefault();
     setSubmitted(true);
     if (hasErrors) {
+      // All required fields are the Arabic ones.
       setTab('edit');
+      setEditLang('ar');
       return;
     }
     setSaving(true);
@@ -133,8 +158,9 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
             ? 'steps'
             : 'paragraph',
       answerText: input.answerText.trim(),
-      steps: input.steps.map((s) => s.trim()).filter(Boolean),
-      subtypes: input.subtypes.filter((s) => s.title.trim()),
+      steps: input.steps.map((s) => s.trim()),
+      subtypes: input.subtypes,
+      translations: input.translations,
       image: input.imageUrl ? { url: toDisplayableImageUrl(input.imageUrl), alt: input.imageAlt || input.title, width: input.imageWidth, height: input.imageHeight } : null,
       order: 1,
     };
@@ -169,12 +195,57 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
           </button>
         </header>
 
+        <div className="qe__langs" role="group" aria-label={A.contentLanguage}>
+          {LANGUAGES.map((l) => {
+            const status = l.code === 'ar' ? null : translationStatus(toInput(form), l.code);
+            return (
+              <button
+                key={l.code}
+                type="button"
+                className="qe__lang"
+                aria-pressed={editLang === l.code}
+                lang={l.htmlLang}
+                title={status ? { complete: A.statusComplete, partial: A.statusPartial, none: A.statusNone }[status] : undefined}
+                onClick={() => setEditLang(l.code)}
+              >
+                {l.name}
+                {status && <span className={`qe__lang-dot qe__lang-dot--${status}`} aria-hidden="true" />}
+              </button>
+            );
+          })}
+        </div>
+
         <div className="qe__scroll">
           {tab === 'preview' ? (
             <div className="qe__preview">
               <p className="adm-hint">{A.previewHint}</p>
-              <QuestionAccordion question={preview} number={1} isOpen isHighlighted={false} onToggle={() => {}} onOpenImage={() => {}} />
+              <FixedLanguage lang={editLang}>
+                <QuestionAccordion
+                  question={localizeQuestion(preview, editLang)}
+                  number={1}
+                  isOpen
+                  isHighlighted={false}
+                  onToggle={() => {}}
+                  onOpenImage={() => {}}
+                />
+              </FixedLanguage>
             </div>
+          ) : editLang !== 'ar' ? (
+            <TranslationFields
+              key={languageInfo(editLang).code}
+              lang={editLang}
+              title={form.title}
+              answerText={form.answerType === 'paragraph' ? form.answerText : form.intro}
+              hasImage={!!form.image.url}
+              isSteps={form.answerType === 'steps'}
+              isTypes={form.answerType === 'types'}
+              text={form.text[editLang]}
+              steps={form.steps}
+              subtypes={form.subtypes}
+              onTextChange={(patch) => update('text', { ...form.text, [editLang]: { ...form.text[editLang], ...patch } })}
+              onStepsChange={(steps) => update('steps', steps)}
+              onSubtypesChange={(subtypes) => update('subtypes', subtypes)}
+            />
           ) : (
             <div className="qe__fields">
               <div className="adm-field">

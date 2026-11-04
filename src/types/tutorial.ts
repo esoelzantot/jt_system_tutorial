@@ -1,3 +1,5 @@
+import type { TranslationLang } from '../i18n/config';
+
 export type AnswerType = 'paragraph' | 'steps' | 'types';
 
 /** One subtype of a ticket: a question with answerType "types" is the main type. */
@@ -8,6 +10,27 @@ export interface TicketSubtype {
   whenToUse: string;
   /** Key from SUBTYPE_ICONS. */
   icon: string;
+}
+
+export type Translations<T> = Partial<Record<TranslationLang, T>>;
+
+export interface SubtypeTranslation {
+  title?: string;
+  meaning?: string;
+  whenToUse?: string;
+}
+
+/** Texts of a question in another language. Steps and subtypes follow the Arabic order by index. */
+export interface QuestionTranslation {
+  title?: string;
+  answerText?: string;
+  steps?: string[];
+  subtypes?: SubtypeTranslation[];
+  imageAlt?: string;
+}
+
+export interface SectionTranslation {
+  title?: string;
 }
 
 export interface TutorialImage {
@@ -28,6 +51,9 @@ export interface Question {
   subtypes: TicketSubtype[];
   image: TutorialImage | null;
   order: number;
+  translations?: Translations<QuestionTranslation>;
+  /** Set when localized: some text is still showing in Arabic. */
+  untranslated?: boolean;
 }
 
 export interface Section {
@@ -35,6 +61,7 @@ export interface Section {
   title: string;
   order: number;
   questions: Question[];
+  translations?: Translations<SectionTranslation>;
 }
 
 /** A highlight range in the original (non-normalized) text: [start, end). */

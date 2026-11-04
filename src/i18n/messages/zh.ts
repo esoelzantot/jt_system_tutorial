@@ -1,0 +1,62 @@
+import type { Messages } from './ar';
+
+export const zh: Messages = {
+  brand: 'J&T Express',
+  title: '物流系统使用指南',
+  subtitle: '系统操作流程与常见问题',
+  metaDescription: 'J&T Express 物流系统操作流程与常见问题的交互式指南',
+  skipToContent: '跳到主要内容',
+  chooseLanguage: '选择语言',
+
+  sectionsNav: '指南栏目',
+  questionsCount: (n) => `${n} 个问题`,
+
+  heroEyebrow: '帮助中心',
+  heroTitleLead: '您需要的一切，助您',
+  heroTitleAccent: '轻松使用物流系统',
+  heroText: '分步操作说明、系统截图以及常见问题解答，尽在一处。',
+  routeOnTheWay: '运输中',
+  routeDelivered: '已签收',
+  statSections: '栏目',
+  statQuestions: '问题',
+  statImages: '截图',
+  browseSections: '按栏目浏览',
+  footerNote: '物流系统使用指南',
+
+  answerSteps: (n) => `${n} 个步骤`,
+  answerParagraph: '说明',
+  answerTypes: (n) => `${n} 种类型`,
+  imageTag: '截图',
+  notTranslated: '仅阿拉伯语',
+
+  explorerMeaning: '这是什么意思？',
+  explorerWhen: '何时使用？',
+  explorerPath: '在工单中选择：',
+  explorerGuide: '查看图片版指南',
+
+  searchLabel: '搜索指南',
+  searchPlaceholder: '搜索问题、流程或步骤…',
+  clearSearch: '清除搜索',
+  resultsCount: (n) => (n === 0 ? '没有结果' : `${n} 条结果`),
+  resultsFor: ['“', '”的搜索结果'],
+  stepLabel: (n) => `第 ${n} 步`,
+  noResultsTitle: '未找到匹配的结果',
+  noResultsHint: '请尝试减少关键词或更换关键词，或检查输入是否正确。',
+
+  loading: '正在加载指南内容…',
+  errorTitle: '内容加载失败',
+  errorHint: '请检查网络连接后重试。',
+  configErrorHint: 'Firebase 配置不完整。请将 .env.example 复制为 .env.local 并填写相应的值。',
+  retry: '重试',
+  emptyTitle: '暂无内容',
+  emptyHint: '指南中尚未添加任何栏目或问题。',
+
+  enlargeImage: '放大图片',
+  imageHint: '点击图片查看原始大小',
+  viewerLabel: '图片查看器',
+  zoomIn: '放大',
+  zoomOut: '缩小',
+  resetZoom: '恢复原始大小',
+  close: '关闭',
+  imageLoadError: '图片加载失败',
+};

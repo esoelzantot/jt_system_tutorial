@@ -11,8 +11,10 @@ import {
   writeBatch,
   type DocumentData,
 } from 'firebase/firestore/lite';
+import { TRANSLATION_LANGS } from '../../i18n/config';
 import { getDb } from '../../services/firebase';
 import { QUESTIONS_COLLECTION, SECTIONS_COLLECTION } from '../../services/tutorialService';
+import type { QuestionTranslation, SectionTranslation, Translations } from '../../types/tutorial';
 import type { AdminQuestion, AdminSection, QuestionInput } from '../types';
 
 const sectionsRef = () => collection(getDb(), SECTIONS_COLLECTION);
@@ -30,7 +32,16 @@ function toQuestion(id: string, d: DocumentData): AdminQuestion {
     answerType: d.answerType === 'steps' || d.answerType === 'types' ? d.answerType : 'paragraph',
     answerText: String(d.answerText ?? ''),
     steps: Array.isArray(d.steps) ? d.steps.map(String) : [],
-    subtypes: Array.isArray(d.subtypes) ? d.subtypes : [],
+    subtypes: Array.isArray(d.subtypes)
+      ? d.subtypes.map((s: DocumentData) => ({
+          title: String(s?.title ?? ''),
+          titleEn: String(s?.titleEn ?? ''),
+          meaning: String(s?.meaning ?? ''),
+          whenToUse: String(s?.whenToUse ?? ''),
+          icon: String(s?.icon ?? ''),
+        }))
+      : [],
+    ...(d.translations ? { translations: d.translations } : {}),
     ...(d.imageUrl ? { imageUrl: String(d.imageUrl), imageAlt: String(d.imageAlt ?? '') } : {}),
     ...(typeof d.imageWidth === 'number' ? { imageWidth: d.imageWidth } : {}),
     ...(typeof d.imageHeight === 'number' ? { imageHeight: d.imageHeight } : {}),
@@ -44,17 +55,39 @@ export async function loadAdminContent() {
     getDocs(query(questionsRef(), orderBy('order'))),
   ]);
   return {
-    sections: s.docs.map((d): AdminSection => ({ id: d.id, title: String(d.data().title ?? ''), order: d.data().order })),
+    sections: s.docs.map(
+      (d): AdminSection => ({
+        id: d.id,
+        title: String(d.data().title ?? ''),
+        order: Number(d.data().order) || 0,
+        ...(d.data().translations ? { translations: d.data().translations } : {}),
+      }),
+    ),
     questions: q.docs.map((d) => toQuestion(d.id, d.data())),
   };
 }
 
-export async function createSection(title: string, existing: AdminSection[]) {
-  await addDoc(sectionsRef(), { title: title.trim(), order: nextOrder(existing) });
+/** Keeps only languages with a title, so empty fields fall back to Arabic. */
+function cleanSectionTranslations(translations: Translations<SectionTranslation>) {
+  const clean: Translations<SectionTranslation> = {};
+  for (const lang of TRANSLATION_LANGS) {
+    const title = translations[lang]?.title?.trim();
+    if (title) clean[lang] = { title };
+  }
+  return clean;
 }
 
-export async function renameSection(id: string, title: string) {
-  await updateDoc(doc(sectionsRef(), id), { title: title.trim() });
+export async function createSection(title: string, translations: Translations<SectionTranslation>, existing: AdminSection[]) {
+  await addDoc(sectionsRef(), { title: title.trim(), order: nextOrder(existing), translations: cleanSectionTranslations(translations) });
+}
+
+/** Also normalises `order` to a number, which the security rules require. */
+export async function updateSection(section: AdminSection, title: string, translations: Translations<SectionTranslation>) {
+  await updateDoc(doc(sectionsRef(), section.id), {
+    title: title.trim(),
+    order: section.order,
+    translations: cleanSectionTranslations(translations),
+  });
 }
 
 /** Deletes a section and every question in it, atomically. */
@@ -73,6 +106,29 @@ export async function saveOrder(kind: 'sections' | 'questions', orderedIds: stri
   await batch.commit();
 }
 
+/** Drops empty fields and languages. Steps and subtypes keep their positions (index = Arabic index). */
+function cleanQuestionTranslations(translations: Translations<QuestionTranslation> = {}) {
+  const clean: Translations<QuestionTranslation> = {};
+  for (const lang of TRANSLATION_LANGS) {
+    const tr = translations[lang];
+    if (!tr) continue;
+    const out: QuestionTranslation = {};
+    if (tr.title?.trim()) out.title = tr.title.trim();
+    if (tr.answerText?.trim()) out.answerText = tr.answerText.trim();
+    if (tr.imageAlt?.trim()) out.imageAlt = tr.imageAlt.trim();
+    if (tr.steps?.some((s) => s.trim())) out.steps = tr.steps.map((s) => s.trim());
+    if (tr.subtypes?.some((s) => s.title?.trim() || s.meaning?.trim() || s.whenToUse?.trim())) {
+      out.subtypes = tr.subtypes.map((s) => ({
+        title: s.title?.trim() ?? '',
+        meaning: s.meaning?.trim() ?? '',
+        whenToUse: s.whenToUse?.trim() ?? '',
+      }));
+    }
+    if (Object.keys(out).length > 0) clean[lang] = out;
+  }
+  return clean;
+}
+
 function cleanQuestion(input: QuestionInput, order: number) {
   const steps = input.steps.map((s) => s.trim()).filter(Boolean);
   return {
@@ -81,6 +137,7 @@ function cleanQuestion(input: QuestionInput, order: number) {
     order,
     answerType: input.answerType,
     answerText: input.answerText.trim(),
+    translations: cleanQuestionTranslations(input.translations),
     steps: input.answerType === 'steps' ? steps : [],
     ...(input.answerType === 'types'
       ? {

@@ -157,6 +157,16 @@
   font-size: 0.875rem;
 }
 
+/* Keep the search box usable between the wide and phone layouts, in every language. */
+@media (max-width: 1140px) {
+  .brand__subtitle {
+    display: none;
+  }
+  .app-header__inner {
+    gap: 12px 18px;
+  }
+}
+
 @media (max-width: 959px) {
   .layout {
     grid-template-columns: minmax(0, 1fr);
@@ -183,7 +193,12 @@
   }
   .brand {
     gap: 12px;
-    padding-inline-end: 52px; /* room for the mascot */
+    padding-inline-end: 96px; /* room for the language menu and the mascot */
+  }
+  .lang {
+    position: absolute;
+    top: 10px;
+    inset-inline-end: 56px;
   }
   .brand__logo {
     height: 22px;
@@ -192,7 +207,7 @@
     font-size: 1.0625rem;
   }
   .brand__subtitle {
-    font-size: 0.75rem;
+    display: none;
   }
   /* On phones the header stacks, so the mascot sits beside the brand row. */
   .mascot {

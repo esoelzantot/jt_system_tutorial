@@ -1,14 +1,21 @@
 import { useEffect, useRef } from 'react';
+import type { TranslationLang } from '../../i18n/config';
 import { A } from '../strings';
 import { Icon } from './Icon';
 
 export interface StepItem {
   key: number;
   text: string;
+  /** Kept on the item so a translation follows its step when steps are reordered. */
+  tr: Record<TranslationLang, string>;
 }
 
 let nextKey = 1;
-export const makeStep = (text = ''): StepItem => ({ key: nextKey++, text });
+export const makeStep = (text = '', tr: Partial<Record<TranslationLang, string>> = {}): StepItem => ({
+  key: nextKey++,
+  text,
+  tr: { en: tr.en ?? '', zh: tr.zh ?? '' },
+});
 
 interface Props {
   steps: StepItem[];

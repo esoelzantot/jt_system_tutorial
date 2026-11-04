@@ -1,4 +1,4 @@
-import { UI } from '../../constants/ui';
+import { useI18n } from '../../i18n/I18nContext';
 import './StatusMessage.css';
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
 }
 
 export function StatusMessage({ kind, title, hint, onRetry }: Props) {
+  const { t } = useI18n();
   return (
     <div className={`status status--${kind}`} role={kind === 'error' ? 'alert' : undefined}>
       <svg className="status__icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -28,7 +29,7 @@ export function StatusMessage({ kind, title, hint, onRetry }: Props) {
       {hint && <p className="status__hint">{hint}</p>}
       {onRetry && (
         <button type="button" className="button button--primary" onClick={onRetry}>
-          {UI.retry}
+          {t.retry}
         </button>
       )}
     </div>
@@ -37,9 +38,10 @@ export function StatusMessage({ kind, title, hint, onRetry }: Props) {
 
 /** Placeholder shaped like the content, shown while Firestore loads. */
 export function LoadingSkeleton() {
+  const { t } = useI18n();
   return (
     <div className="skeleton" role="status" aria-live="polite">
-      <span className="visually-hidden">{UI.loading}</span>
+      <span className="visually-hidden">{t.loading}</span>
       {[0, 1].map((section) => (
         <div key={section} className="skeleton__section" aria-hidden="true">
           <div className="skeleton__line skeleton__line--title" />

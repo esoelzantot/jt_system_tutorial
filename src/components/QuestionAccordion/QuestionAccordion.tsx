@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { UI } from '../../constants/ui';
+import { useI18n } from '../../i18n/I18nContext';
 import type { ExplorerTarget, Question, TutorialImage } from '../../types/tutorial';
 import { questionButtonDomId, questionDomId, questionPanelDomId } from '../../utils/dom';
 import { AnswerContent } from '../AnswerContent/AnswerContent';
@@ -28,6 +28,7 @@ export const QuestionAccordion = memo(function QuestionAccordion({
   onToggle,
   onOpenImage,
 }: Props) {
+  const { t } = useI18n();
   const buttonId = questionButtonDomId(question.id);
   const panelId = questionPanelDomId(question.id);
   const { image } = question;
@@ -66,7 +67,7 @@ export const QuestionAccordion = memo(function QuestionAccordion({
                     <path d="M4 6h16M4 12h16M4 18h10" />
                   )}
                 </svg>
-                {isSteps ? UI.answerSteps(question.steps.length) : isTypes ? UI.answerTypes(question.subtypes.length) : UI.answerParagraph}
+                {isSteps ? t.answerSteps(question.steps.length) : isTypes ? t.answerTypes(question.subtypes.length) : t.answerParagraph}
               </span>
               {image && (
                 <span className="qa__tag qa__tag--image">
@@ -74,9 +75,10 @@ export const QuestionAccordion = memo(function QuestionAccordion({
                     <rect x="3" y="5" width="18" height="14" rx="2" />
                     <path d="m3 16 5-5 4 4 3-3 6 6" />
                   </svg>
-                  {UI.statImages}
+                  {t.imageTag}
                 </span>
               )}
+              {question.untranslated && <span className="qa__tag qa__tag--untranslated">{t.notTranslated}</span>}
             </span>
           </span>
           <span className="qa__chevron" aria-hidden="true">
@@ -97,7 +99,7 @@ export const QuestionAccordion = memo(function QuestionAccordion({
                   type="button"
                   className="qa__image-button"
                   onClick={() => onOpenImage(image)}
-                  aria-label={`${UI.enlargeImage}: ${image.alt}`}
+                  aria-label={`${t.enlargeImage}: ${image.alt}`}
                 >
                   {/* Screenshot framed as an app window. */}
                   <span className="qa__window-bar" aria-hidden="true">
@@ -118,10 +120,10 @@ export const QuestionAccordion = memo(function QuestionAccordion({
                       <circle cx="11" cy="11" r="7" />
                       <path d="m20 20-3.5-3.5M11 8v6M8 11h6" />
                     </svg>
-                    {UI.enlargeImage}
+                    {t.enlargeImage}
                   </span>
                 </button>
-                <figcaption className="qa__caption">{UI.imageHint}</figcaption>
+                <figcaption className="qa__caption">{t.imageHint}</figcaption>
               </figure>
             )}
             {isTypes ? (

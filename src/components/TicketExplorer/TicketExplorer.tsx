@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { UI } from '../../constants/ui';
+import { useI18n } from '../../i18n/I18nContext';
 import type { Question, TicketSubtype, TutorialImage } from '../../types/tutorial';
 import { subtypeIconPath } from './icons';
 import './TicketExplorer.css';
@@ -19,6 +19,7 @@ const SubtypeIconSvg = ({ icon }: { icon: string }) => (
 );
 
 function SubtypeDetail({ mainType, subtype }: { mainType: Question; subtype: TicketSubtype }) {
+  const { t } = useI18n();
   return (
     <div className="tx-detail">
       <div className="tx-detail__head">
@@ -38,7 +39,7 @@ function SubtypeDetail({ mainType, subtype }: { mainType: Question; subtype: Tic
       </div>
 
       <div className="tx-detail__block">
-        <p className="tx-detail__label">{UI.explorerMeaning}</p>
+        <p className="tx-detail__label">{t.explorerMeaning}</p>
         <p className="tx-detail__text" dir="auto">
           {subtype.meaning}
         </p>
@@ -46,7 +47,7 @@ function SubtypeDetail({ mainType, subtype }: { mainType: Question; subtype: Tic
 
       {subtype.whenToUse && (
         <div className="tx-detail__block tx-detail__block--when">
-          <p className="tx-detail__label">{UI.explorerWhen}</p>
+          <p className="tx-detail__label">{t.explorerWhen}</p>
           <p className="tx-detail__text" dir="auto">
             {subtype.whenToUse}
           </p>
@@ -54,9 +55,9 @@ function SubtypeDetail({ mainType, subtype }: { mainType: Question; subtype: Tic
       )}
 
       <div className="tx-detail__path">
-        <span className="tx-detail__path-label">{UI.explorerPath}</span>
+        <span className="tx-detail__path-label">{t.explorerPath}</span>
         <span className="tx-detail__crumb" dir="auto">
-          {mainType.title.replace(/\s*\([^)]*\)\s*$/, '')}
+          {mainType.title.replace(/\s*[(（][^)）]*[)）]\s*$/, '')}
         </span>
         <span className="tx-detail__sep" aria-hidden="true">
           ‹
@@ -71,6 +72,7 @@ function SubtypeDetail({ mainType, subtype }: { mainType: Question; subtype: Tic
 
 /** Answer of a main ticket type: tap a subtype card to read what it means and when to use it. */
 export function TicketExplorer({ question, target, onOpenImage }: Props) {
+  const { t } = useI18n();
   const [selected, setSelected] = useState(0);
 
   useEffect(() => {
@@ -93,7 +95,7 @@ export function TicketExplorer({ question, target, onOpenImage }: Props) {
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 5h16v14H4zM4 16l5-5 4 4 3-3 4 4" />
               </svg>
-              {UI.explorerGuide}
+              {t.explorerGuide}
             </button>
           )}
         </div>

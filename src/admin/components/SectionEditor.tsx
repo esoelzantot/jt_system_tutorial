@@ -1,4 +1,6 @@
 import { useId, useState, type FormEvent } from 'react';
+import { languageInfo, TRANSLATION_LANGS } from '../../i18n/config';
+import type { SectionTranslation, Translations } from '../../types/tutorial';
 import { A } from '../strings';
 import type { AdminSection } from '../types';
 import { Dialog } from './Dialog';
@@ -7,11 +9,15 @@ import { Icon } from './Icon';
 interface Props {
   section: AdminSection | null;
   onClose: () => void;
-  onSave: (title: string) => Promise<void>;
+  onSave: (title: string, translations: Translations<SectionTranslation>) => Promise<void>;
 }
 
 export function SectionEditor({ section, onClose, onSave }: Props) {
   const [title, setTitle] = useState(section?.title ?? '');
+  const [translated, setTranslated] = useState({
+    en: section?.translations?.en?.title ?? '',
+    zh: section?.translations?.zh?.title ?? '',
+  });
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
   const headingId = useId();
@@ -24,7 +30,7 @@ export function SectionEditor({ section, onClose, onSave }: Props) {
     if (!title.trim()) return;
     setSaving(true);
     try {
-      await onSave(title);
+      await onSave(title, { en: { title: translated.en }, zh: { title: translated.zh } });
     } finally {
       setSaving(false);
     }
@@ -55,6 +61,20 @@ export function SectionEditor({ section, onClose, onSave }: Props) {
           />
           {invalid && <p className="adm-error">{A.required}</p>}
         </div>
+        {TRANSLATION_LANGS.map((lang) => (
+          <label key={lang} className="adm-field">
+            <span className="adm-label">
+              {A.sectionTitleIn(languageInfo(lang).name)} <small>{A.introOptional}</small>
+            </span>
+            <input
+              className="adm-input"
+              dir={languageInfo(lang).dir}
+              lang={languageInfo(lang).htmlLang}
+              value={translated[lang]}
+              onChange={(e) => setTranslated((t) => ({ ...t, [lang]: e.target.value }))}
+            />
+          </label>
+        ))}
         <div className="adm-dialog__actions">
           <button type="button" className="adm-btn adm-btn--ghost" onClick={onClose} disabled={saving}>
             {A.cancel}

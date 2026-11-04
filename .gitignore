@@ -12,3 +12,6 @@ dist
 
 # TypeScript build cache
 *.tsbuildinfo
+
+# Real guide content (private)
+seed/translations.json

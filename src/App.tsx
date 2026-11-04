@@ -6,7 +6,10 @@ import { SearchResults } from './components/SearchResults/SearchResults';
 import { SectionNavigation } from './components/SectionNavigation/SectionNavigation';
 import { LoadingSkeleton, StatusMessage } from './components/StatusMessage/StatusMessage';
 import { TutorialSection } from './components/TutorialSection/TutorialSection';
-import { UI } from './constants/ui';
+import { LanguageSwitcher } from './components/LanguageSwitcher/LanguageSwitcher';
+import type { Lang } from './i18n/config';
+import { useI18n } from './i18n/I18nContext';
+import { localizeSections } from './i18n/localizeContent';
 import { useActiveSection } from './hooks/useActiveSection';
 import { useSearch } from './hooks/useSearch';
 import { useStickyOffset } from './hooks/useStickyOffset';
@@ -21,7 +24,9 @@ import './App.css';
 const HIGHLIGHT_MS = 3000;
 
 export function App() {
-  const { status, sections, error, reload } = useTutorialData();
+  const { t, lang, setLang } = useI18n();
+  const { status, sections: baseSections, error, reload } = useTutorialData();
+  const sections = useMemo(() => localizeSections(baseSections, lang), [baseSections, lang]);
   const headerRef = useRef<HTMLElement>(null);
   const stickyOffset = useStickyOffset(headerRef);
 
@@ -119,26 +124,50 @@ export function App() {
     });
   }, []);
 
+  // Text lengths differ between languages, so the page would jump when switching. Remember the
+  // question at the top of the screen and put it back in the same spot after the switch.
+  const languageAnchorRef = useRef<{ id: string; top: number } | null>(null);
+
+  const changeLanguage = useCallback(
+    (next: Lang) => {
+      const line = stickyOffset;
+      const anchor = [...document.querySelectorAll<HTMLElement>('.qa')].find((el) => el.getBoundingClientRect().bottom > line);
+      const firstSection = sectionIds[0] && document.getElementById(sectionDomId(sectionIds[0]));
+      const insideContent = firstSection && firstSection.getBoundingClientRect().top < line;
+      languageAnchorRef.current = anchor && insideContent ? { id: anchor.id, top: anchor.getBoundingClientRect().top } : null;
+      setLang(next);
+    },
+    [sectionIds, setLang, stickyOffset],
+  );
+
+  useLayoutEffect(() => {
+    const anchor = languageAnchorRef.current;
+    languageAnchorRef.current = null;
+    const el = anchor && document.getElementById(anchor.id);
+    if (el) window.scrollBy({ top: el.getBoundingClientRect().top - anchor.top, behavior: 'instant' });
+  }, [lang]);
+
   const openImage = useCallback((image: TutorialImage) => setViewerImage(image), []);
   const closeImage = useCallback(() => setViewerImage(null), []);
 
   return (
     <>
       <a href="#main" className="skip-link">
-        {UI.skipToContent}
+        {t.skipToContent}
       </a>
 
       <header ref={headerRef} className="app-header">
         <div className="app-header__inner container">
           <div className="brand">
-            <img className="brand__logo" src={logoUrl} alt={UI.brand} width={359} height={81} />
+            <img className="brand__logo" src={logoUrl} alt={t.brand} width={359} height={81} />
             <span className="brand__divider" aria-hidden="true" />
             <div className="brand__text">
-              <h1 className="brand__title">{UI.title}</h1>
-              <p className="brand__subtitle">{UI.subtitle}</p>
+              <h1 className="brand__title">{t.title}</h1>
+              <p className="brand__subtitle">{t.subtitle}</p>
             </div>
           </div>
           <SearchBar value={query} onChange={handleQueryChange} onClear={clearSearch} disabled={!hasContent} />
+          <LanguageSwitcher onChange={changeLanguage} />
           <img className="mascot" src={mascotUrl} alt="" aria-hidden="true" width={156} height={216} />
         </div>
         {hasContent && (
@@ -167,14 +196,14 @@ export function App() {
           {status === 'error' && (
             <StatusMessage
               kind="error"
-              title={UI.errorTitle}
-              hint={error instanceof FirebaseConfigError ? UI.configErrorHint : UI.errorHint}
+              title={t.errorTitle}
+              hint={error instanceof FirebaseConfigError ? t.configErrorHint : t.errorHint}
               onRetry={error instanceof FirebaseConfigError ? undefined : reload}
             />
           )}
 
           {status === 'success' && sections.length === 0 && (
-            <StatusMessage kind="empty" title={UI.emptyTitle} hint={UI.emptyHint} />
+            <StatusMessage kind="empty" title={t.emptyTitle} hint={t.emptyHint} />
           )}
 
           {hasContent && isSearching && <SearchResults query={query} results={results} onSelect={handleSelectResult} />}
@@ -201,9 +230,9 @@ export function App() {
 
       <footer className="app-footer">
         <div className="container app-footer__inner">
-          <img className="app-footer__logo" src={logoUrl} alt={UI.brand} width={359} height={81} />
+          <img className="app-footer__logo" src={logoUrl} alt={t.brand} width={359} height={81} />
           <p className="app-footer__note">
-            {UI.footerNote} · <bdi>{UI.brand}</bdi>
+            {t.footerNote} · <bdi>{t.brand}</bdi>
           </p>
         </div>
       </footer>

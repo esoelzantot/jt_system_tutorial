@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { UI } from '../../constants/ui';
+import { useI18n } from '../../i18n/I18nContext';
 import { MAX_SCALE, MIN_SCALE, useZoomPan } from '../../hooks/useZoomPan';
 import type { TutorialImage } from '../../types/tutorial';
 import './ImageViewer.css';
@@ -16,6 +16,7 @@ interface Props {
  * reader's place in the tutorial (and any open answers) is untouched.
  */
 export function ImageViewer({ image, onClose }: Props) {
+  const { t } = useI18n();
   const dialogRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -68,13 +69,13 @@ export function ImageViewer({ image, onClose }: Props) {
   }, [onClose, zoomIn, zoomOut, reset]);
 
   return createPortal(
-    <div ref={dialogRef} className="viewer" role="dialog" aria-modal="true" aria-label={UI.viewerLabel}>
+    <div ref={dialogRef} className="viewer" role="dialog" aria-modal="true" aria-label={t.viewerLabel}>
       <div className="viewer__toolbar">
         <p className="viewer__caption" dir="auto">
           {image.alt}
         </p>
         <div className="viewer__controls">
-          <button type="button" className="viewer__button" onClick={zoomOut} disabled={scale <= MIN_SCALE} aria-label={UI.zoomOut} title={UI.zoomOut}>
+          <button type="button" className="viewer__button" onClick={zoomOut} disabled={scale <= MIN_SCALE} aria-label={t.zoomOut} title={t.zoomOut}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3.5-3.5M8 11h6" />
@@ -83,18 +84,18 @@ export function ImageViewer({ image, onClose }: Props) {
           <span className="viewer__zoom-level" aria-live="polite">
             {Math.round(scale * 100)}%
           </span>
-          <button type="button" className="viewer__button" onClick={zoomIn} disabled={scale >= MAX_SCALE} aria-label={UI.zoomIn} title={UI.zoomIn}>
+          <button type="button" className="viewer__button" onClick={zoomIn} disabled={scale >= MAX_SCALE} aria-label={t.zoomIn} title={t.zoomIn}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3.5-3.5M11 8v6M8 11h6" />
             </svg>
           </button>
-          <button type="button" className="viewer__button" onClick={reset} disabled={scale === 1 && x === 0 && y === 0} aria-label={UI.resetZoom} title={UI.resetZoom}>
+          <button type="button" className="viewer__button" onClick={reset} disabled={scale === 1 && x === 0 && y === 0} aria-label={t.resetZoom} title={t.resetZoom}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" />
             </svg>
           </button>
-          <button ref={closeRef} type="button" className="viewer__button viewer__button--close" onClick={onClose} aria-label={UI.close} title={UI.close}>
+          <button ref={closeRef} type="button" className="viewer__button viewer__button--close" onClick={onClose} aria-label={t.close} title={t.close}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M6 6l12 12M18 6 6 18" />
             </svg>
@@ -103,8 +104,8 @@ export function ImageViewer({ image, onClose }: Props) {
       </div>
 
       <div ref={stageRef} className={`viewer__stage${scale > 1 ? ' viewer__stage--zoomed' : ''}`}>
-        {status === 'loading' && <span className="viewer__spinner" aria-label={UI.loading} />}
-        {status === 'error' && <p className="viewer__error">{UI.imageLoadError}</p>}
+        {status === 'loading' && <span className="viewer__spinner" aria-label={t.loading} />}
+        {status === 'error' && <p className="viewer__error">{t.imageLoadError}</p>}
         <img
           ref={imageRef}
           className="viewer__image"

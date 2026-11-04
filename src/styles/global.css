@@ -33,7 +33,22 @@
   --font-display: 'Readex Pro', 'IBM Plex Sans Arabic', system-ui, sans-serif;
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
+  /* Chinese glyphs are not in the Latin/Arabic fonts above. */
+  --font-zh: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+
+  /* 1 in RTL, -1 in LTR: mirrors arrows and their hover nudge. */
+  --dir-flip: 1;
+
   color-scheme: light;
+}
+
+[dir='ltr'] {
+  --dir-flip: -1;
+}
+
+:root:lang(zh) {
+  --font-sans: var(--font-zh);
+  --font-display: var(--font-zh);
 }
 
 *,

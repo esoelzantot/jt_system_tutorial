@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef } from 'react';
-import { UI } from '../../constants/ui';
+import { useI18n } from '../../i18n/I18nContext';
 import type { Section } from '../../types/tutorial';
 import { scrollChildIntoContainer, sectionDomId } from '../../utils/dom';
 import './SectionNavigation.css';
@@ -13,6 +13,7 @@ interface Props {
 }
 
 export const SectionNavigation = memo(function SectionNavigation({ sections, activeId, onSelect, variant }: Props) {
+  const { t } = useI18n();
   const listRef = useRef<HTMLOListElement>(null);
 
   // Keep the active item visible inside its own scroll area when there are many sections.
@@ -24,8 +25,8 @@ export const SectionNavigation = memo(function SectionNavigation({ sections, act
   }, [activeId, variant]);
 
   return (
-    <nav className={`section-nav section-nav--${variant}`} aria-label={UI.sectionsNav}>
-      {variant === 'sidebar' && <p className="section-nav__heading">{UI.sectionsNav}</p>}
+    <nav className={`section-nav section-nav--${variant}`} aria-label={t.sectionsNav}>
+      {variant === 'sidebar' && <p className="section-nav__heading">{t.sectionsNav}</p>}
       <ol ref={listRef} className="section-nav__list">
         {sections.map((section) => {
           const isActive = section.id === activeId;
@@ -46,7 +47,7 @@ export const SectionNavigation = memo(function SectionNavigation({ sections, act
                     {section.title}
                   </span>
                   {variant === 'sidebar' && (
-                    <span className="section-nav__count">{UI.questionsCount(section.questions.length)}</span>
+                    <span className="section-nav__count">{t.questionsCount(section.questions.length)}</span>
                   )}
                 </span>
               </a>

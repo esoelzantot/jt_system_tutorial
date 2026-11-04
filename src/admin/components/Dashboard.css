@@ -503,6 +503,20 @@
   color: var(--color-brand-text);
 }
 
+.dq__tag--lang-complete {
+  background: #e7f6ee;
+  color: #12744a;
+}
+
+.dq__tag--lang-partial {
+  background: #fff4e5;
+  color: #8a4b00;
+}
+
+.dq__tag--lang-none {
+  text-decoration: line-through;
+}
+
 .dq__tag--image {
   background: #eef4ff;
   color: #3657b8;

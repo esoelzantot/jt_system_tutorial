@@ -305,18 +305,15 @@
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+  /* The arrow points "forward", which is left in RTL and right in LTR. */
+  transform: scaleX(var(--dir-flip));
   transition: background-color 0.2s, stroke 0.2s, transform 0.25s var(--ease-spring);
-}
-
-/* The arrow points "forward", which is left in RTL and right in LTR. */
-[dir='ltr'] .tile__arrow {
-  transform: scaleX(-1);
 }
 
 .tile:hover .tile__arrow {
   background: var(--color-brand);
   stroke: #fff;
-  transform: translateX(-3px);
+  transform: translateX(calc(var(--dir-flip) * -3px)) scaleX(var(--dir-flip));
 }
 
 .tile__title {

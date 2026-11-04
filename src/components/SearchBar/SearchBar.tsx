@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { UI } from '../../constants/ui';
+import { useI18n } from '../../i18n/I18nContext';
 import './SearchBar.css';
 
 interface Props {
@@ -10,12 +10,13 @@ interface Props {
 }
 
 export function SearchBar({ value, onChange, onClear, disabled }: Props) {
+  const { t } = useI18n();
   const inputId = useId();
 
   return (
     <div className="search-bar" role="search">
       <label htmlFor={inputId} className="visually-hidden">
-        {UI.searchLabel}
+        {t.searchLabel}
       </label>
       <svg className="search-bar__icon" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="11" cy="11" r="7" />
@@ -25,10 +26,11 @@ export function SearchBar({ value, onChange, onClear, disabled }: Props) {
         id={inputId}
         className="search-bar__input"
         type="search"
-        dir="auto"
+        // While empty the field follows the page, so the placeholder sits on the correct side.
+        dir={value ? 'auto' : undefined}
         autoComplete="off"
         spellCheck={false}
-        placeholder={UI.searchPlaceholder}
+        placeholder={t.searchPlaceholder}
         value={value}
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
@@ -40,7 +42,7 @@ export function SearchBar({ value, onChange, onClear, disabled }: Props) {
         }}
       />
       {value && (
-        <button type="button" className="search-bar__clear" onClick={onClear} aria-label={UI.clearSearch}>
+        <button type="button" className="search-bar__clear" onClick={onClear} aria-label={t.clearSearch}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M6 6l12 12M18 6 6 18" />
           </svg>
