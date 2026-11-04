@@ -21,6 +21,8 @@ export const ar = {
   statImages: 'صورة توضيحية',
   browseSections: 'تصفّح حسب القسم',
   footerNote: 'دليل داخلي لنظام الشحن',
+  footerRights: 'جميع الحقوق محفوظة.',
+  footerCredit: 'تصميم وتنفيذ',
 
   answerSteps: (n: number) => (n === 1 ? 'خطوة واحدة' : n === 2 ? 'خطوتان' : n <= 10 ? `${n} خطوات` : `${n} خطوة`),
   answerParagraph: 'شرح',

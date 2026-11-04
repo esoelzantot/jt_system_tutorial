@@ -22,6 +22,8 @@ export const zh: Messages = {
   statImages: '截图',
   browseSections: '按栏目浏览',
   footerNote: '物流系统使用指南',
+  footerRights: '版权所有。',
+  footerCredit: '设计与开发',
 
   answerSteps: (n) => `${n} 个步骤`,
   answerParagraph: '说明',

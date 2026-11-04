@@ -24,6 +24,8 @@ export const en: Messages = {
   statImages: 'Screenshots',
   browseSections: 'Browse by section',
   footerNote: 'Shipping system guide',
+  footerRights: 'All rights reserved.',
+  footerCredit: 'Designed & developed by',
 
   answerSteps: (n) => plural(n, 'step', 'steps'),
   answerParagraph: 'Explanation',

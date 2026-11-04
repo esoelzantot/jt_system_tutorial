@@ -22,6 +22,7 @@ import mascotUrl from './assets/brand/jt-rabbit.webp';
 import './App.css';
 
 const HIGHLIGHT_MS = 3000;
+const AUTHOR = 'Eng. Eslam Shaker';
 
 export function App() {
   const { t, lang, setLang } = useI18n();
@@ -234,6 +235,22 @@ export function App() {
           <p className="app-footer__note">
             {t.footerNote} · <bdi>{t.brand}</bdi>
           </p>
+        </div>
+        <div className="app-footer__legal">
+          <div className="container app-footer__legal-inner">
+            <p>
+              <bdi>
+                © {new Date().getFullYear()} {t.brand}.
+              </bdi>{' '}
+              {t.footerRights}
+            </p>
+            <p>
+              {t.footerCredit}{' '}
+              <bdi className="app-footer__author" dir="ltr">
+                {AUTHOR}
+              </bdi>
+            </p>
+          </div>
         </div>
       </footer>
 
