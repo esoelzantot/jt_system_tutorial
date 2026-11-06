@@ -62,7 +62,8 @@ export function Dashboard({ email }: { email: string }) {
       const guide = q.guide
         ? [...q.guide.examples, ...q.guide.materials, ...q.guide.steps].map((i) => i.text).concat(q.guide.notes, q.guide.warning)
         : [];
-      const haystack = normalizeWithMap([q.title, q.answerText, ...q.steps, ...subtypes, ...guide].join(' ')).value;
+      const claim = q.claim ? [...q.claim.terms, ...q.claim.documents].map((i) => i.text).concat(q.claim.deadline) : [];
+      const haystack = normalizeWithMap([q.title, q.answerText, ...q.steps, ...subtypes, ...guide, ...claim].join(' ')).value;
       return tokens.every((t) => haystack.includes(t));
     });
   }, [questions, tokens]);
@@ -142,14 +143,16 @@ export function Dashboard({ email }: { email: string }) {
           </span>
           <span className="dq__tags">
             <span className={`dq__tag dq__tag--${q.answerType}`}>
-              <Icon name={q.answerType === 'steps' ? 'steps' : q.answerType === 'types' ? 'cards' : q.answerType === 'guide' ? 'package' : 'paragraph'} />
+              <Icon name={q.answerType === 'steps' ? 'steps' : q.answerType === 'types' ? 'cards' : q.answerType === 'guide' ? 'package' : q.answerType === 'claim' ? 'check' : 'paragraph'} />
               {q.answerType === 'steps'
                 ? `${q.steps.length} ${A.typeSteps}`
                 : q.answerType === 'types'
                   ? A.subtypesCount(q.subtypes.length)
                   : q.answerType === 'guide'
                     ? A.typeGuide
-                    : A.typeParagraph}
+                    : q.answerType === 'claim'
+                      ? A.typeClaim
+                      : A.typeParagraph}
             </span>
             {q.imageUrl && (
               <span className="dq__tag dq__tag--image">

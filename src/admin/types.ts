@@ -1,4 +1,4 @@
-import type { AnswerType, PackagingGuide, QuestionTranslation, SectionTranslation, TicketSubtype, Translations } from '../types/tutorial';
+import type { AnswerType, ClaimInfo, PackagingGuide, QuestionTranslation, SectionTranslation, TicketSubtype, Translations } from '../types/tutorial';
 
 export interface AdminSection {
   id: string;
@@ -18,6 +18,7 @@ export interface AdminQuestion {
   steps: string[];
   subtypes: TicketSubtype[];
   guide?: PackagingGuide;
+  claim?: ClaimInfo;
   imageUrl?: string;
   imageAlt?: string;
   imageWidth?: number;

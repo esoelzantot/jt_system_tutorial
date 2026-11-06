@@ -30,6 +30,14 @@ export interface GuideEditState {
   warningTr: Tr<string>;
 }
 
+export interface ClaimEditState {
+  deadline: string;
+  deadlineTr: Tr<string>;
+  terms: GuideEditItem[];
+  anyTerm: boolean;
+  documents: GuideEditItem[];
+}
+
 let nextKey = 1;
 export const makeGuideItem = (
   item?: { text?: string; note?: string; imageUrl?: string },
@@ -104,10 +112,11 @@ function RowImage({ url, onChange, onBusyChange }: { url: string; onChange: (url
   );
 }
 
-function ItemList({
+export function ItemList({
   label,
   items,
   withNote,
+  withImage = true,
   addLabel,
   onChange,
   onBusyChange,
@@ -115,6 +124,7 @@ function ItemList({
   label: string;
   items: GuideEditItem[];
   withNote: boolean;
+  withImage?: boolean;
   addLabel: string;
   onChange: (items: GuideEditItem[]) => void;
   onBusyChange: (busy: boolean) => void;
@@ -127,7 +137,7 @@ function ItemList({
       <div className="guide-list">
         {items.map((item, i) => (
           <div key={item.key} className="guide-row">
-            <RowImage url={item.imageUrl} onChange={(imageUrl) => set(i, { imageUrl })} onBusyChange={onBusyChange} />
+            {withImage && <RowImage url={item.imageUrl} onChange={(imageUrl) => set(i, { imageUrl })} onBusyChange={onBusyChange} />}
             <div className="guide-row__fields">
               <textarea
                 className="adm-textarea"

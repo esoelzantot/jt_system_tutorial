@@ -42,6 +42,17 @@ export const zh: Messages = {
   guidePrev: '上一步',
   guideNext: '下一步',
 
+  claimTick: '确认后请勾选每一项',
+  claimTermsTitle: '条款与条件',
+  claimTermsHint: '请确认您的货件符合以下条款。',
+  claimTermsAnyHint: '您的货件只需符合以下其中一项条款即可。',
+  claimActionTitle: '我该怎么做？',
+  claimAction: '请联系您的大客户经理（Key Account）申请理赔。',
+  claimActionHint: '大客户经理是在 J&T 负责跟进您账户的人员。',
+  claimDocsTitle: '所需信息 / 文件',
+  claimDocsHint: '请准备好以下内容以提交理赔。',
+  claimReady: '全部准备就绪！请联系您的大客户经理申请理赔。',
+
   explorerMeaning: '这是什么意思？',
   explorerWhen: '何时使用？',
   explorerPath: '在工单中选择：',

@@ -1,5 +1,5 @@
 import { collection, getDocs, orderBy, query, type DocumentData } from 'firebase/firestore/lite';
-import type { AnswerType, GuideItem, PackagingGuide, Question, Section, TicketSubtype, TutorialImage } from '../types/tutorial';
+import type { AnswerType, ClaimInfo, GuideItem, PackagingGuide, Question, Section, TicketSubtype, TutorialImage } from '../types/tutorial';
 import { toDisplayableImageUrl } from '../utils/imageUrl';
 import { getDb } from './firebase';
 
@@ -66,12 +66,22 @@ function toGuide(value: unknown): PackagingGuide | undefined {
   return hasContent ? guide : undefined;
 }
 
+function toClaim(value: unknown): ClaimInfo | undefined {
+  const c = asObject<DocumentData>(value);
+  if (!c) return undefined;
+  const claim: ClaimInfo = { deadline: asString(c.deadline), terms: toGuideItems(c.terms), anyTerm: c.anyTerm === true, documents: toGuideItems(c.documents) };
+  return claim.terms.length + claim.documents.length > 0 ? claim : undefined;
+}
+
 function toQuestion(id: string, data: DocumentData, index: number): Question {
   const steps = Array.isArray(data.steps) ? data.steps.map(asString).filter(Boolean) : [];
   const subtypes = toSubtypes(data.subtypes);
   // An answer without its steps or subtypes falls back to the paragraph so nothing renders empty.
   const guide = data.answerType === 'guide' ? toGuide(data.guide) : undefined;
-  const answerType: AnswerType = guide
+  const claim = data.answerType === 'claim' ? toClaim(data.claim) : undefined;
+  const answerType: AnswerType = claim
+    ? 'claim'
+    : guide
     ? 'guide'
     : data.answerType === 'types' && subtypes.length > 0
       ? 'types'
@@ -88,6 +98,7 @@ function toQuestion(id: string, data: DocumentData, index: number): Question {
     steps,
     subtypes,
     guide,
+    claim,
     image: toImage(data),
     order: asNumber(data.order, index),
     translations: asObject(data.translations),

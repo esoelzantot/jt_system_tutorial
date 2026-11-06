@@ -29,7 +29,7 @@ function toQuestion(id: string, d: DocumentData): AdminQuestion {
     title: String(d.title ?? ''),
     // Numbers typed as text in the Firebase console still sort correctly.
     order: Number(d.order) || 0,
-    answerType: d.answerType === 'steps' || d.answerType === 'types' || d.answerType === 'guide' ? d.answerType : 'paragraph',
+    answerType: d.answerType === 'steps' || d.answerType === 'types' || d.answerType === 'guide' || d.answerType === 'claim' ? d.answerType : 'paragraph',
     answerText: String(d.answerText ?? ''),
     steps: Array.isArray(d.steps) ? d.steps.map(String) : [],
     subtypes: Array.isArray(d.subtypes)
@@ -49,6 +49,16 @@ function toQuestion(id: string, d: DocumentData): AdminQuestion {
             steps: d.guide.steps ?? [],
             notes: d.guide.notes ?? [],
             warning: d.guide.warning ?? '',
+          },
+        }
+      : {}),
+    ...(d.claim
+      ? {
+          claim: {
+            deadline: String(d.claim.deadline ?? ''),
+            terms: d.claim.terms ?? [],
+            ...(d.claim.anyTerm === true ? { anyTerm: true } : {}),
+            documents: d.claim.documents ?? [],
           },
         }
       : {}),
@@ -141,6 +151,11 @@ function cleanQuestionTranslations(translations: Translations<QuestionTranslatio
       const anyText = [...guide.examples!, ...guide.materials!, ...guide.steps!].some((i) => i.text || i.note) || guide.notes!.some(Boolean) || guide.warning;
       if (anyText) out.guide = guide;
     }
+    if (tr.claim) {
+      const items = (list: GuideItemTranslation[] = []) => list.map((i) => ({ text: i.text?.trim() ?? '', note: i.note?.trim() ?? '' }));
+      const claim = { deadline: tr.claim.deadline?.trim() ?? '', terms: items(tr.claim.terms), documents: items(tr.claim.documents) };
+      if (claim.deadline || [...claim.terms, ...claim.documents].some((i) => i.text || i.note)) out.claim = claim;
+    }
     if (Object.keys(out).length > 0) clean[lang] = out;
   }
   return clean;
@@ -168,6 +183,9 @@ function cleanQuestion(input: QuestionInput, order: number) {
     answerText: input.answerText.trim(),
     translations: cleanQuestionTranslations(input.translations),
     ...(input.answerType === 'guide' && input.guide ? { guide: cleanGuide(input.guide) } : {}),
+    ...(input.answerType === 'claim' && input.claim
+      ? { claim: { deadline: input.claim.deadline.trim(), terms: cleanGuideItems(input.claim.terms), ...(input.claim.anyTerm ? { anyTerm: true } : {}), documents: cleanGuideItems(input.claim.documents) } }
+      : {}),
     steps: input.answerType === 'steps' ? steps : [],
     ...(input.answerType === 'types'
       ? {

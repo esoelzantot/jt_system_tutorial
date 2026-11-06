@@ -44,6 +44,9 @@ function buildIndex(sections: Section[]): IndexEntry[] {
         ),
         ...(question.guide?.notes ?? []).map((note) => field(note)),
         ...(question.guide?.warning ? [field(question.guide.warning)] : []),
+        ...[...(question.claim?.terms ?? []), ...(question.claim?.documents ?? [])].map((item) =>
+          field(item.note ? `${item.text} (${item.note})` : item.text),
+        ),
       ],
     }));
   });

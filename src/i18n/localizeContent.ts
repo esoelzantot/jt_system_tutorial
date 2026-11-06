@@ -1,4 +1,4 @@
-import type { GuideItem, GuideItemTranslation, PackagingGuide, QuestionTranslation, Question, Section, TicketSubtype, Translations } from '../types/tutorial';
+import type { ClaimInfo, GuideItem, GuideItemTranslation, PackagingGuide, QuestionTranslation, Question, Section, TicketSubtype, Translations } from '../types/tutorial';
 import type { Lang, TranslationLang } from './config';
 
 const pick = (translated: string | undefined, base: string) => translated?.trim() || base;
@@ -10,6 +10,7 @@ interface TranslatableQuestion {
   steps: string[];
   subtypes: TicketSubtype[];
   guide?: PackagingGuide;
+  claim?: ClaimInfo;
   translations?: Translations<QuestionTranslation>;
 }
 
@@ -35,6 +36,9 @@ export function translationStatus(q: TranslatableQuestion, lang: TranslationLang
     ...itemChecks(q.guide?.steps, tr?.guide?.steps),
     ...(q.guide?.notes ?? []).map((_, i) => has(tr?.guide?.notes?.[i])),
     ...(q.guide?.warning?.trim() ? [has(tr?.guide?.warning)] : []),
+    ...(q.claim?.deadline?.trim() ? [has(tr?.claim?.deadline)] : []),
+    ...itemChecks(q.claim?.terms, tr?.claim?.terms),
+    ...itemChecks(q.claim?.documents, tr?.claim?.documents),
   ];
   if (checks.every(Boolean)) return 'complete';
   return checks.some(Boolean) ? 'partial' : 'none';
@@ -74,6 +78,12 @@ export function localizeQuestion(q: Question, lang: Lang): Question {
       steps: localizeItems(q.guide.steps, tr?.guide?.steps),
       notes: q.guide.notes.map((note, i) => pick(tr?.guide?.notes?.[i], note)),
       warning: pick(tr?.guide?.warning, q.guide.warning),
+    },
+    claim: q.claim && {
+      ...q.claim,
+      deadline: pick(tr?.claim?.deadline, q.claim.deadline),
+      terms: localizeItems(q.claim.terms, tr?.claim?.terms),
+      documents: localizeItems(q.claim.documents, tr?.claim?.documents),
     },
     image: q.image && { ...q.image, alt: tr?.imageAlt?.trim() || tr?.title?.trim() || q.image.alt },
     untranslated: translationStatus(q, lang) !== 'complete',

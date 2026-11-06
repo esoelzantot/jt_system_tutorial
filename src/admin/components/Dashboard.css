@@ -503,6 +503,11 @@
   color: #12744a;
 }
 
+.dq__tag--claim {
+  background: #fff4e5;
+  color: #8a4b00;
+}
+
 .dq__tag--types {
   background: var(--color-brand-soft);
   color: var(--color-brand-text);

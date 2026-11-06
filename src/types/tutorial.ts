@@ -1,6 +1,6 @@
 import type { TranslationLang } from '../i18n/config';
 
-export type AnswerType = 'paragraph' | 'steps' | 'types' | 'guide';
+export type AnswerType = 'paragraph' | 'steps' | 'types' | 'guide' | 'claim';
 
 /** A row in a packaging guide: an example, a material or a step. */
 export interface GuideItem {
@@ -16,6 +16,16 @@ export interface PackagingGuide {
   steps: GuideItem[];
   notes: string[];
   warning: string;
+}
+
+/** Structured answer of a question with answerType "claim". The action is the same for every type (see the messages). */
+export interface ClaimInfo {
+  /** Short reminder shown on the closed card. */
+  deadline: string;
+  terms: GuideItem[];
+  /** Meeting one term is enough, instead of all of them. */
+  anyTerm?: boolean;
+  documents: GuideItem[];
 }
 
 /** One subtype of a ticket: a question with answerType "types" is the main type. */
@@ -50,12 +60,19 @@ export interface GuideTranslation {
   warning?: string;
 }
 
+export interface ClaimTranslation {
+  deadline?: string;
+  terms?: GuideItemTranslation[];
+  documents?: GuideItemTranslation[];
+}
+
 export interface QuestionTranslation {
   title?: string;
   answerText?: string;
   steps?: string[];
   subtypes?: SubtypeTranslation[];
   guide?: GuideTranslation;
+  claim?: ClaimTranslation;
   imageAlt?: string;
 }
 
@@ -80,6 +97,7 @@ export interface Question {
   steps: string[];
   subtypes: TicketSubtype[];
   guide?: PackagingGuide;
+  claim?: ClaimInfo;
   image: TutorialImage | null;
   order: number;
   translations?: Translations<QuestionTranslation>;

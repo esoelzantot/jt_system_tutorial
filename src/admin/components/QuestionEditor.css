@@ -637,3 +637,11 @@
     padding: 12px 16px;
   }
 }
+
+.qe__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}

@@ -16,7 +16,7 @@ import { deleteImages, listTutorialImages, uploadImage } from './lib/blob.mjs';
 import { getAdminDb } from './lib/firestore-admin.mjs';
 
 const SECTION_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const ANSWER_TYPES = ['paragraph', 'steps', 'types', 'guide'];
+const ANSWER_TYPES = ['paragraph', 'steps', 'types', 'guide', 'claim'];
 
 // ---------- terminal input ----------
 
@@ -126,6 +126,7 @@ function toQuestionFields(q, sectionIds) {
   const subtypes = Array.isArray(q.subtypes) ? q.subtypes.filter((s) => s?.title?.trim()) : [];
   if (q.answerType === 'types' && subtypes.length === 0) errors.push('a "types" answer needs at least one subtype');
   if (q.answerType === 'guide' && !q.guide) errors.push('a "guide" answer needs a guide object');
+  if (q.answerType === 'claim' && !(q.claim?.terms?.length || q.claim?.documents?.length)) errors.push('a "claim" answer needs terms or documents');
   if (errors.length) throw new Error(errors.join('; '));
 
   return {
@@ -147,6 +148,7 @@ function toQuestionFields(q, sectionIds) {
         }
       : {}),
     ...(q.answerType === 'guide' ? { guide: q.guide } : {}),
+    ...(q.answerType === 'claim' ? { claim: q.claim } : {}),
     ...(q.translations ? { translations: q.translations } : {}),
     ...(q.imageUrl ? { imageUrl: q.imageUrl, imageAlt: (q.imageAlt || q.title).trim() } : {}),
   };

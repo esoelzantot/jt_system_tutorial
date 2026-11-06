@@ -41,6 +41,17 @@ export const ar = {
   guidePrev: 'السابق',
   guideNext: 'التالي',
 
+  claimTick: 'علّم على كل نقطة لما تتأكد منها',
+  claimTermsTitle: 'الشروط',
+  claimTermsHint: 'اتأكد إن الشروط دي منطبقة على شحنتك.',
+  claimTermsAnyHint: 'يكفي إن شرط واحد من دول يكون منطبق على شحنتك.',
+  claimActionTitle: 'تعمل إيه؟',
+  claimAction: 'كلّم مسؤول حسابك (Key Account) واطلب تقديم طلب تعويض.',
+  claimActionHint: 'مسؤول الحساب هو الشخص المتابع لحسابك في J&T.',
+  claimDocsTitle: 'البيانات والمستندات المطلوبة',
+  claimDocsHint: 'جهّز الحاجات دي عشان تقدّم طلبك.',
+  claimReady: 'كده كله جاهز! كلّم مسؤول حسابك وقدّم طلب التعويض.',
+
   explorerMeaning: 'ما معناها؟',
   explorerWhen: 'متى تستخدمها؟',
   explorerPath: 'هتختار في التيكت:',

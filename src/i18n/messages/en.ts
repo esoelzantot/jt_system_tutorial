@@ -44,6 +44,17 @@ export const en: Messages = {
   guidePrev: 'Previous',
   guideNext: 'Next',
 
+  claimTick: 'Tick each point once you have checked it',
+  claimTermsTitle: 'Terms & Conditions',
+  claimTermsHint: 'Make sure these terms apply to your shipment.',
+  claimTermsAnyHint: 'It is enough for one of these terms to apply to your shipment.',
+  claimActionTitle: 'What Should I Do?',
+  claimAction: 'Contact your Key Account representative to request a compensation claim.',
+  claimActionHint: 'Your Key Account representative is the person who follows your account at J&T.',
+  claimDocsTitle: 'Required Information / Documents',
+  claimDocsHint: 'Get these ready to submit your claim.',
+  claimReady: 'All set! Contact your Key Account representative and request your compensation claim.',
+
   explorerMeaning: 'What does it mean?',
   explorerWhen: 'When to use it?',
   explorerPath: 'Select in the ticket:',

@@ -9,7 +9,7 @@ import { A } from '../strings';
 import type { AdminQuestion, AdminSection, QuestionInput } from '../types';
 import { Dialog } from './Dialog';
 import { useFeedback } from './feedback';
-import { GuideEditor, makeGuideItem, makeGuideNote, type GuideEditItem, type GuideEditState } from './GuideEditor';
+import { GuideEditor, ItemList, makeGuideItem, makeGuideNote, type ClaimEditState, type GuideEditItem, type GuideEditState } from './GuideEditor';
 import { Icon } from './Icon';
 import { ImageField, type ImageValue } from './ImageField';
 import { makeStep, StepsEditor, type StepItem } from './StepsEditor';
@@ -35,13 +35,14 @@ interface FormState {
   steps: StepItem[];
   subtypes: SubtypeItem[];
   guide: GuideEditState;
+  claim: ClaimEditState;
   image: ImageValue;
   /** Question-level translated texts; step and subtype translations live on their items. */
   text: Record<TranslationLang, TextTranslation>;
 }
 
 function initialForm(q: AdminQuestion | null, sectionId: string): FormState {
-  const hasIntro = q?.answerType === 'steps' || q?.answerType === 'types' || q?.answerType === 'guide';
+  const hasIntro = q?.answerType === 'steps' || q?.answerType === 'types' || q?.answerType === 'guide' || q?.answerType === 'claim';
   const tr = q?.translations;
   const textOf = (lang: TranslationLang): TextTranslation => ({
     title: tr?.[lang]?.title ?? '',
@@ -50,6 +51,8 @@ function initialForm(q: AdminQuestion | null, sectionId: string): FormState {
   });
   const guideItems = (kind: 'examples' | 'materials' | 'steps') =>
     (q?.guide?.[kind] ?? []).map((item, i) => makeGuideItem(item, { en: tr?.en?.guide?.[kind]?.[i], zh: tr?.zh?.guide?.[kind]?.[i] }));
+  const claimItems = (kind: 'terms' | 'documents') =>
+    (q?.claim?.[kind] ?? []).map((item, i) => makeGuideItem(item, { en: tr?.en?.claim?.[kind]?.[i], zh: tr?.zh?.claim?.[kind]?.[i] }));
   return {
     sectionId,
     title: q?.title ?? '',
@@ -68,6 +71,13 @@ function initialForm(q: AdminQuestion | null, sectionId: string): FormState {
       warning: q?.guide?.warning ?? '',
       warningTr: { en: tr?.en?.guide?.warning ?? '', zh: tr?.zh?.guide?.warning ?? '' },
     },
+    claim: {
+      deadline: q?.claim?.deadline ?? '',
+      deadlineTr: { en: tr?.en?.claim?.deadline ?? '', zh: tr?.zh?.claim?.deadline ?? '' },
+      terms: claimItems('terms'),
+      anyTerm: q?.claim?.anyTerm === true,
+      documents: claimItems('documents'),
+    },
     text: { en: textOf('en'), zh: textOf('zh') },
     image: { url: q?.imageUrl ?? '', alt: q?.imageAlt ?? '', width: q?.imageWidth, height: q?.imageHeight },
   };
@@ -83,6 +93,9 @@ function toInput(f: FormState): QuestionInput {
   const materials = filled(f.guide.materials);
   const guideSteps = filled(f.guide.steps);
   const notes = isGuide ? f.guide.notes.filter((n) => n.text.trim()) : [];
+  const isClaim = f.answerType === 'claim';
+  const claimTerms = isClaim ? f.claim.terms.filter((i) => i.text.trim()) : [];
+  const claimDocuments = isClaim ? f.claim.documents.filter((i) => i.text.trim()) : [];
   const translations: Translations<QuestionTranslation> = {};
   for (const lang of TRANSLATION_LANGS) {
     translations[lang] = {
@@ -97,6 +110,15 @@ function toInput(f: FormState): QuestionInput {
               steps: guideSteps.map((i) => i.tr[lang]),
               notes: notes.map((n) => n.tr[lang]),
               warning: f.guide.warningTr[lang],
+            },
+          }
+        : {}),
+      ...(isClaim
+        ? {
+            claim: {
+              deadline: f.claim.deadlineTr[lang],
+              terms: claimTerms.map((i) => i.tr[lang]),
+              documents: claimDocuments.map((i) => i.tr[lang]),
             },
           }
         : {}),
@@ -118,6 +140,16 @@ function toInput(f: FormState): QuestionInput {
             steps: guideSteps.map(plain),
             notes: notes.map((n) => n.text),
             warning: f.guide.warning,
+          },
+        }
+      : {}),
+    ...(isClaim
+      ? {
+          claim: {
+            deadline: f.claim.deadline,
+            terms: claimTerms.map(({ text, note }) => ({ text, ...(note ? { note } : {}) })),
+            ...(f.claim.anyTerm ? { anyTerm: true } : {}),
+            documents: claimDocuments.map(({ text, note }) => ({ text, ...(note ? { note } : {}) })),
           },
         }
       : {}),
@@ -161,6 +193,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
       !form.guide.warning.trim()
         ? A.needGuideContent
         : null,
+    claim: form.answerType === 'claim' && ![...form.claim.terms, ...form.claim.documents].some((i) => i.text.trim()) ? A.needClaimContent : null,
     imageUrl: form.image.url && !/^https:\/\//i.test(form.image.url) ? A.invalidUrl : null,
   };
   const hasErrors = Object.values(errors).some(Boolean);
@@ -199,7 +232,9 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
       sectionId: input.sectionId,
       title: input.title.trim() || A.questionTitlePlaceholder,
       answerType:
-        input.answerType === 'guide' && input.guide
+        input.answerType === 'claim' && input.claim
+          ? 'claim'
+          : input.answerType === 'guide' && input.guide
           ? 'guide'
           : input.answerType === 'types' && input.subtypes.some((s) => s.title.trim())
           ? 'types'
@@ -215,6 +250,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
         materials: input.guide.materials.map((i) => ({ ...i, imageUrl: i.imageUrl && toDisplayableImageUrl(i.imageUrl) })),
         steps: input.guide.steps.map((i) => ({ ...i, imageUrl: i.imageUrl && toDisplayableImageUrl(i.imageUrl) })),
       },
+      claim: input.claim,
       translations: input.translations,
       image: input.imageUrl ? { url: toDisplayableImageUrl(input.imageUrl), alt: input.imageAlt || input.title, width: input.imageWidth, height: input.imageHeight } : null,
       order: 1,
@@ -296,6 +332,8 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
               isTypes={form.answerType === 'types'}
               guide={form.answerType === 'guide' ? form.guide : null}
               onGuideChange={(guide) => update('guide', guide)}
+              claim={form.answerType === 'claim' ? form.claim : null}
+              onClaimChange={(claim) => update('claim', claim)}
               text={form.text[editLang]}
               steps={form.steps}
               subtypes={form.subtypes}
@@ -343,7 +381,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
               <fieldset className="adm-field qe__fieldset">
                 <legend className="adm-label">{A.answerType}</legend>
                 <div className="qe__types">
-                  {(['paragraph', 'steps', 'types', 'guide'] as const).map((type) => (
+                  {(['paragraph', 'steps', 'types', 'guide', 'claim'] as const).map((type) => (
                     <label key={type} className={`qe__type${form.answerType === type ? ' qe__type--active' : ''}`}>
                       <input
                         type="radio"
@@ -353,11 +391,11 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                         onChange={() => update('answerType', type)}
                       />
                       <span className="qe__type-icon">
-                        <Icon name={type === 'steps' ? 'steps' : type === 'types' ? 'cards' : type === 'guide' ? 'package' : 'paragraph'} />
+                        <Icon name={type === 'steps' ? 'steps' : type === 'types' ? 'cards' : type === 'guide' ? 'package' : type === 'claim' ? 'check' : 'paragraph'} />
                       </span>
                       <span>
-                        <strong>{type === 'steps' ? A.typeSteps : type === 'types' ? A.typeTypes : type === 'guide' ? A.typeGuide : A.typeParagraph}</strong>
-                        <small>{type === 'steps' ? A.typeStepsHint : type === 'types' ? A.typeTypesHint : type === 'guide' ? A.typeGuideHint : A.typeParagraphHint}</small>
+                        <strong>{type === 'steps' ? A.typeSteps : type === 'types' ? A.typeTypes : type === 'guide' ? A.typeGuide : type === 'claim' ? A.typeClaim : A.typeParagraph}</strong>
+                        <small>{type === 'steps' ? A.typeStepsHint : type === 'types' ? A.typeTypesHint : type === 'guide' ? A.typeGuideHint : type === 'claim' ? A.typeClaimHint : A.typeParagraphHint}</small>
                       </span>
                     </label>
                   ))}
@@ -395,7 +433,28 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                       onChange={(e) => update('intro', e.target.value)}
                     />
                   </div>
-                  {form.answerType === 'guide' ? (
+                  {form.answerType === 'claim' ? (
+                    <>
+                      <label className="adm-field">
+                        <span className="adm-label">{A.claimDeadline}</span>
+                        <input
+                          className="adm-input"
+                          dir="auto"
+                          value={form.claim.deadline}
+                          placeholder={A.claimDeadlinePlaceholder}
+                          onChange={(e) => update('claim', { ...form.claim, deadline: e.target.value })}
+                        />
+                      </label>
+                      <ItemList label={A.claimTerms} addLabel={A.claimAddTerm} items={form.claim.terms} withNote withImage={false} onChange={(terms) => update('claim', { ...form.claim, terms })} onBusyChange={setUploading} />
+                      <label className="qe__check">
+                        <input type="checkbox" checked={form.claim.anyTerm} onChange={(e) => update('claim', { ...form.claim, anyTerm: e.target.checked })} />
+                        {A.claimAnyTerm}
+                      </label>
+                      <p className="adm-hint">{A.claimActionNote}</p>
+                      <ItemList label={A.claimDocuments} addLabel={A.claimAddDocument} items={form.claim.documents} withNote withImage={false} onChange={(documents) => update('claim', { ...form.claim, documents })} onBusyChange={setUploading} />
+                      {show('claim') && <p className="adm-error">{show('claim')}</p>}
+                    </>
+                  ) : form.answerType === 'guide' ? (
                     <>
                       <GuideEditor guide={form.guide} onChange={(guide) => update('guide', guide)} onBusyChange={setUploading} />
                       {show('guide') && <p className="adm-error">{show('guide')}</p>}

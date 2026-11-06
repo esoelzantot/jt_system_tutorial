@@ -1,0 +1,264 @@
+.cg {
+  display: grid;
+  gap: 18px;
+}
+
+.cg__intro {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.85;
+  text-align: start;
+}
+
+/* ---- Progress ---- */
+
+.cg__progress {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.cg__progress-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px 12px;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.cg__progress-row strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.cg__bar {
+  overflow: hidden;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+
+.cg__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #1f9d63;
+  transition: inline-size 0.25s ease;
+}
+
+/* ---- Stages ---- */
+
+.cg__flow {
+  display: grid;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cg-stage {
+  position: relative;
+  display: flex;
+  gap: 12px;
+}
+
+/* The line joining a stage's number to the next one. */
+.cg-stage:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  inset-block: 32px -18px;
+  inset-inline-start: 15px;
+  width: 2px;
+  background: var(--color-border);
+}
+
+.cg-stage__number {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.cg-stage__body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.cg-stage__title {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.cg-stage__hint {
+  margin: -6px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+/* ---- Checklist ---- */
+
+.cg__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cg-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.cg-item:hover {
+  border-color: #f0cfca;
+}
+
+.cg-item--checked,
+.cg-item--checked:hover {
+  border-color: #8fd3ae;
+  background: #effaf4;
+}
+
+.cg-item__check {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 7px;
+  background: var(--color-surface);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.cg-item__check svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+
+.cg-item--checked .cg-item__check {
+  border-color: #1f9d63;
+  background: #1f9d63;
+}
+
+.cg-item--checked .cg-item__check svg {
+  opacity: 1;
+}
+
+.cg-item__text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  line-height: 1.7;
+}
+
+.cg-item__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.cg-item__text small {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+/* ---- Action ---- */
+
+.cg-action {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-brand-soft);
+  line-height: 1.7;
+}
+
+.cg-action svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  fill: none;
+  stroke: var(--color-brand-text);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cg-action span {
+  display: grid;
+  gap: 2px;
+}
+
+.cg-action strong {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.cg-action small {
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+}
+
+/* ---- Ready ---- */
+
+.cg__ready {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: #e7f6ee;
+  color: #12744a;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.cg__ready svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
