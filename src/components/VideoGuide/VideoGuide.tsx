@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useI18n } from '../../i18n/I18nContext';
 import type { Question } from '../../types/tutorial';
 import { driveEmbedUrl } from '../../utils/driveVideo';
@@ -12,32 +13,47 @@ interface Props {
 /** Answer of a video guide: the player, a short description and a link to download the video. */
 export function VideoGuide({ question, isOpen }: Props) {
   const { t } = useI18n();
+  const [loaded, setLoaded] = useState(false);
   const link = question.videoUrl ?? '';
   const embedUrl = driveEmbedUrl(link);
+
+  // The player is removed on close, so it loads again the next time.
+  useEffect(() => {
+    if (!isOpen) setLoaded(false);
+  }, [isOpen]);
 
   if (!embedUrl) return null;
 
   return (
     <div className="vg">
-      <div className="vg__frame">
+      <div className="vg__screen">
         {/* Only while open: this avoids loading every player, and closing the card stops the video. */}
-        {isOpen && <iframe src={embedUrl} title={question.title} allow="autoplay; fullscreen" allowFullScreen />}
+        {isOpen && <iframe src={embedUrl} title={question.title} allow="autoplay; fullscreen" allowFullScreen onLoad={() => setLoaded(true)} />}
+        {!loaded && (
+          <span className="vg__loading" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M8 5l11 7-11 7z" />
+            </svg>
+          </span>
+        )}
       </div>
 
-      {question.answerText && (
-        <p className="vg__description" dir="auto">
-          {question.answerText}
-        </p>
-      )}
+      <div className="vg__info">
+        {question.answerText && (
+          <p className="vg__description" dir="auto">
+            {question.answerText}
+          </p>
+        )}
 
-      <div className="vg__actions">
-        <a className="vg__download" href={link} target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 4v12M7 11l5 5 5-5M4 20h16" />
-          </svg>
-          {t.videoDownload}
-        </a>
-        <small>{t.videoHint}</small>
+        <div className="vg__actions">
+          <a className="vg__download" href={link} target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 4v12M7 11l5 5 5-5M4 20h16" />
+            </svg>
+            {t.videoDownload}
+          </a>
+          <small>{t.videoHint}</small>
+        </div>
       </div>
     </div>
   );

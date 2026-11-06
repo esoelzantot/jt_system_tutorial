@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useI18n } from '../../i18n/I18nContext';
 import type { GuideItem, Question } from '../../types/tutorial';
+import { BidiText } from '../BidiText/BidiText';
 import './ClaimGuide.css';
 
 interface Props {
@@ -24,7 +25,7 @@ function CheckList({ items, prefix, checked, onToggle }: { items: GuideItem[]; p
               </span>
               <span className="cg-item__text">
                 <span className="cg-item__title" dir="auto">
-                  {item.text}
+                  <BidiText text={item.text} />
                 </span>
                 {item.note && <small dir="auto">{item.note}</small>}
               </span>
@@ -98,7 +99,7 @@ export function ClaimGuide({ question }: Props) {
                 <path d="M21 15.500v3a2 2 0 0 1-2.200 2A17 17 0 0 1 3.500 5.200 2 2 0 0 1 5.500 3h3a1.500 1.500 0 0 1 1.500 1.300l.4 2.500a1.500 1.500 0 0 1-.5 1.400L8.700 9.300a14 14 0 0 0 6 6l1.100-1.200a1.500 1.500 0 0 1 1.400-.5l2.500.4a1.500 1.500 0 0 1 1.300 1.500z" />
               </svg>
               <span>
-                <strong>{t.claimAction}</strong>
+                <strong><BidiText text={t.claimAction} /></strong>
                 <small>{t.claimActionHint}</small>
               </span>
             </div>

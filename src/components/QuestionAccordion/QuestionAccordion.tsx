@@ -3,6 +3,7 @@ import { useI18n } from '../../i18n/I18nContext';
 import type { ExplorerTarget, Question, TutorialImage } from '../../types/tutorial';
 import { questionButtonDomId, questionDomId, questionPanelDomId } from '../../utils/dom';
 import { AnswerContent } from '../AnswerContent/AnswerContent';
+import { BidiText } from '../BidiText/BidiText';
 import { ClaimGuide } from '../ClaimGuide/ClaimGuide';
 import { PackagingGuide } from '../PackagingGuide/PackagingGuide';
 import { TicketExplorer } from '../TicketExplorer/TicketExplorer';
@@ -75,7 +76,7 @@ export const QuestionAccordion = memo(function QuestionAccordion({
           </span>
           <span className="qa__main">
             <span className="qa__title" dir="auto">
-              {question.title}
+              <BidiText text={question.title} />
             </span>
             <span className="qa__tags">
               <span className={`qa__tag qa__tag--${guide?.steps.length ? 'steps' : question.answerType}`}>
