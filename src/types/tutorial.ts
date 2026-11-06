@@ -1,6 +1,6 @@
 import type { TranslationLang } from '../i18n/config';
 
-export type AnswerType = 'paragraph' | 'steps' | 'types' | 'guide' | 'claim';
+export type AnswerType = 'paragraph' | 'steps' | 'types' | 'guide' | 'claim' | 'video';
 
 /** A row in a packaging guide: an example, a material or a step. */
 export interface GuideItem {
@@ -98,6 +98,8 @@ export interface Question {
   subtypes: TicketSubtype[];
   guide?: PackagingGuide;
   claim?: ClaimInfo;
+  /** Google Drive sharing link of a question with answerType "video". */
+  videoUrl?: string;
   image: TutorialImage | null;
   order: number;
   translations?: Translations<QuestionTranslation>;

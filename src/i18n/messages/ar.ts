@@ -25,6 +25,8 @@ export const ar = {
   footerCredit: 'تصميم وتنفيذ',
 
   answerSteps: (n: number) => (n === 1 ? 'خطوة واحدة' : n === 2 ? 'خطوتان' : n <= 10 ? `${n} خطوات` : `${n} خطوة`),
+  answerVideo: 'فيديو',
+  videosCount: (n: number) => (n === 1 ? 'فيديو واحد' : n === 2 ? 'فيديوهين' : `${n} فيديوهات`),
   answerParagraph: 'شرح',
   answerTypes: (n: number) => (n === 1 ? 'نوع واحد' : n === 2 ? 'نوعان' : n <= 10 ? `${n} أنواع` : `${n} نوعًا`),
   imageTag: 'صورة توضيحية',
@@ -40,6 +42,9 @@ export const ar = {
   guideStepOf: (n: number, total: number) => `الخطوة ${n} من ${total}`,
   guidePrev: 'السابق',
   guideNext: 'التالي',
+
+  videoDownload: 'تحميل الفيديو',
+  videoHint: 'الزرار هيفتحلك الفيديو على Google Drive، ومن هناك تقدر تحمّله.',
 
   claimTick: 'علّم على كل نقطة لما تتأكد منها',
   claimTermsTitle: 'الشروط',

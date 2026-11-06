@@ -1,5 +1,6 @@
 import { collection, getDocs, orderBy, query, type DocumentData } from 'firebase/firestore/lite';
 import type { AnswerType, ClaimInfo, GuideItem, PackagingGuide, Question, Section, TicketSubtype, TutorialImage } from '../types/tutorial';
+import { driveFileId } from '../utils/driveVideo';
 import { toDisplayableImageUrl } from '../utils/imageUrl';
 import { getDb } from './firebase';
 
@@ -79,7 +80,10 @@ function toQuestion(id: string, data: DocumentData, index: number): Question {
   // An answer without its steps or subtypes falls back to the paragraph so nothing renders empty.
   const guide = data.answerType === 'guide' ? toGuide(data.guide) : undefined;
   const claim = data.answerType === 'claim' ? toClaim(data.claim) : undefined;
-  const answerType: AnswerType = claim
+  const videoUrl = data.answerType === 'video' && driveFileId(asString(data.videoUrl)) ? asString(data.videoUrl) : undefined;
+  const answerType: AnswerType = videoUrl
+    ? 'video'
+    : claim
     ? 'claim'
     : guide
     ? 'guide'
@@ -99,6 +103,7 @@ function toQuestion(id: string, data: DocumentData, index: number): Question {
     subtypes,
     guide,
     claim,
+    videoUrl,
     image: toImage(data),
     order: asNumber(data.order, index),
     translations: asObject(data.translations),

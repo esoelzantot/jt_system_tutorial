@@ -19,6 +19,7 @@ export interface AdminQuestion {
   subtypes: TicketSubtype[];
   guide?: PackagingGuide;
   claim?: ClaimInfo;
+  videoUrl?: string;
   imageUrl?: string;
   imageAlt?: string;
   imageWidth?: number;

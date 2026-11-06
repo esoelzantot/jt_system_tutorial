@@ -37,7 +37,7 @@ export const TutorialSection = memo(function TutorialSection({
           <h2 id={headingId} className="tutorial-section__title" dir="auto">
             {section.title}
           </h2>
-          <p className="tutorial-section__meta">{t.questionsCount(section.questions.length)}</p>
+          <p className="tutorial-section__meta">{(section.questions.every((q) => q.answerType === 'video') ? t.videosCount : t.questionsCount)(section.questions.length)}</p>
         </div>
       </header>
 

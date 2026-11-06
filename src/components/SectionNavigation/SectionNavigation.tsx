@@ -47,7 +47,7 @@ export const SectionNavigation = memo(function SectionNavigation({ sections, act
                     {section.title}
                   </span>
                   {variant === 'sidebar' && (
-                    <span className="section-nav__count">{t.questionsCount(section.questions.length)}</span>
+                    <span className="section-nav__count">{(section.questions.every((q) => q.answerType === 'video') ? t.videosCount : t.questionsCount)(section.questions.length)}</span>
                   )}
                 </span>
               </a>

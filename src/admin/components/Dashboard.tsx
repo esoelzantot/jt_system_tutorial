@@ -143,7 +143,7 @@ export function Dashboard({ email }: { email: string }) {
           </span>
           <span className="dq__tags">
             <span className={`dq__tag dq__tag--${q.answerType}`}>
-              <Icon name={q.answerType === 'steps' ? 'steps' : q.answerType === 'types' ? 'cards' : q.answerType === 'guide' ? 'package' : q.answerType === 'claim' ? 'check' : 'paragraph'} />
+              <Icon name={q.answerType === 'steps' ? 'steps' : q.answerType === 'types' ? 'cards' : q.answerType === 'guide' ? 'package' : q.answerType === 'claim' ? 'check' : q.answerType === 'video' ? 'play' : 'paragraph'} />
               {q.answerType === 'steps'
                 ? `${q.steps.length} ${A.typeSteps}`
                 : q.answerType === 'types'
@@ -152,7 +152,9 @@ export function Dashboard({ email }: { email: string }) {
                     ? A.typeGuide
                     : q.answerType === 'claim'
                       ? A.typeClaim
-                      : A.typeParagraph}
+                      : q.answerType === 'video'
+                        ? A.typeVideo
+                        : A.typeParagraph}
             </span>
             {q.imageUrl && (
               <span className="dq__tag dq__tag--image">

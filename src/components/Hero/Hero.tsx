@@ -71,7 +71,7 @@ export const Hero = memo(function Hero({ sections, onSelectSection }: Props) {
                 <span className="tile__title" dir="auto">
                   {section.title}
                 </span>
-                <span className="tile__meta">{t.questionsCount(section.questions.length)}</span>
+                <span className="tile__meta">{(section.questions.every((q) => q.answerType === 'video') ? t.videosCount : t.questionsCount)(section.questions.length)}</span>
                 <svg className="tile__arrow" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M19 12H5m6-6-6 6 6 6" />
                 </svg>

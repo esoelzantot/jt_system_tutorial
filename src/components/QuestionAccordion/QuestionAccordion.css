@@ -113,6 +113,11 @@
   color: var(--color-brand-text);
 }
 
+.qa__tag--video {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-text);
+}
+
 .qa__tag--claim {
   background: #fff4e5;
   color: #8a4b00;

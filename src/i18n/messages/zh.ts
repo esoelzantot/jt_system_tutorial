@@ -26,6 +26,8 @@ export const zh: Messages = {
   footerCredit: '设计与开发',
 
   answerSteps: (n) => `${n} 个步骤`,
+  answerVideo: '视频',
+  videosCount: (n) => `${n} 个视频`,
   answerParagraph: '说明',
   answerTypes: (n) => `${n} 种类型`,
   imageTag: '截图',
@@ -41,6 +43,9 @@ export const zh: Messages = {
   guideStepOf: (n, total) => `第 ${n} 步，共 ${total} 步`,
   guidePrev: '上一步',
   guideNext: '下一步',
+
+  videoDownload: '下载视频',
+  videoHint: '此按钮将在 Google Drive 中打开视频，您可以在那里下载。',
 
   claimTick: '确认后请勾选每一项',
   claimTermsTitle: '条款与条件',

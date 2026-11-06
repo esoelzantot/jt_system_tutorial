@@ -29,7 +29,7 @@ function toQuestion(id: string, d: DocumentData): AdminQuestion {
     title: String(d.title ?? ''),
     // Numbers typed as text in the Firebase console still sort correctly.
     order: Number(d.order) || 0,
-    answerType: d.answerType === 'steps' || d.answerType === 'types' || d.answerType === 'guide' || d.answerType === 'claim' ? d.answerType : 'paragraph',
+    answerType: d.answerType === 'steps' || d.answerType === 'types' || d.answerType === 'guide' || d.answerType === 'claim' || d.answerType === 'video' ? d.answerType : 'paragraph',
     answerText: String(d.answerText ?? ''),
     steps: Array.isArray(d.steps) ? d.steps.map(String) : [],
     subtypes: Array.isArray(d.subtypes)
@@ -52,6 +52,7 @@ function toQuestion(id: string, d: DocumentData): AdminQuestion {
           },
         }
       : {}),
+    ...(d.videoUrl ? { videoUrl: String(d.videoUrl) } : {}),
     ...(d.claim
       ? {
           claim: {
@@ -183,6 +184,7 @@ function cleanQuestion(input: QuestionInput, order: number) {
     answerText: input.answerText.trim(),
     translations: cleanQuestionTranslations(input.translations),
     ...(input.answerType === 'guide' && input.guide ? { guide: cleanGuide(input.guide) } : {}),
+    ...(input.answerType === 'video' && input.videoUrl ? { videoUrl: input.videoUrl.trim() } : {}),
     ...(input.answerType === 'claim' && input.claim
       ? { claim: { deadline: input.claim.deadline.trim(), terms: cleanGuideItems(input.claim.terms), ...(input.claim.anyTerm ? { anyTerm: true } : {}), documents: cleanGuideItems(input.claim.documents) } }
       : {}),

@@ -28,6 +28,8 @@ export const en: Messages = {
   footerCredit: 'Designed & developed by',
 
   answerSteps: (n) => plural(n, 'step', 'steps'),
+  answerVideo: 'Video',
+  videosCount: (n) => plural(n, 'video', 'videos'),
   answerParagraph: 'Explanation',
   answerTypes: (n) => plural(n, 'type', 'types'),
   imageTag: 'Screenshot',
@@ -43,6 +45,9 @@ export const en: Messages = {
   guideStepOf: (n, total) => `Step ${n} of ${total}`,
   guidePrev: 'Previous',
   guideNext: 'Next',
+
+  videoDownload: 'Download video',
+  videoHint: 'This button opens the video on Google Drive, where you can download it.',
 
   claimTick: 'Tick each point once you have checked it',
   claimTermsTitle: 'Terms & Conditions',

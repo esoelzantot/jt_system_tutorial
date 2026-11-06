@@ -4,6 +4,7 @@ import { FixedLanguage } from '../../i18n/I18nContext';
 import { LANGUAGES, languageInfo, TRANSLATION_LANGS, type Lang, type TranslationLang } from '../../i18n/config';
 import { localizeQuestion, translationStatus } from '../../i18n/localizeContent';
 import type { AnswerType, Question, QuestionTranslation, Translations } from '../../types/tutorial';
+import { driveFileId } from '../../utils/driveVideo';
 import { toDisplayableImageUrl } from '../../utils/imageUrl';
 import { A } from '../strings';
 import type { AdminQuestion, AdminSection, QuestionInput } from '../types';
@@ -36,13 +37,14 @@ interface FormState {
   subtypes: SubtypeItem[];
   guide: GuideEditState;
   claim: ClaimEditState;
+  videoUrl: string;
   image: ImageValue;
   /** Question-level translated texts; step and subtype translations live on their items. */
   text: Record<TranslationLang, TextTranslation>;
 }
 
 function initialForm(q: AdminQuestion | null, sectionId: string): FormState {
-  const hasIntro = q?.answerType === 'steps' || q?.answerType === 'types' || q?.answerType === 'guide' || q?.answerType === 'claim';
+  const hasIntro = q?.answerType === 'steps' || q?.answerType === 'types' || q?.answerType === 'guide' || q?.answerType === 'claim' || q?.answerType === 'video';
   const tr = q?.translations;
   const textOf = (lang: TranslationLang): TextTranslation => ({
     title: tr?.[lang]?.title ?? '',
@@ -78,6 +80,7 @@ function initialForm(q: AdminQuestion | null, sectionId: string): FormState {
       anyTerm: q?.claim?.anyTerm === true,
       documents: claimItems('documents'),
     },
+    videoUrl: q?.videoUrl ?? '',
     text: { en: textOf('en'), zh: textOf('zh') },
     image: { url: q?.imageUrl ?? '', alt: q?.imageAlt ?? '', width: q?.imageWidth, height: q?.imageHeight },
   };
@@ -154,7 +157,8 @@ function toInput(f: FormState): QuestionInput {
         }
       : {}),
     translations,
-    ...(f.image.url ? { imageUrl: f.image.url, imageAlt: f.image.alt, imageWidth: f.image.width, imageHeight: f.image.height } : {}),
+    ...(f.answerType === 'video' ? { videoUrl: f.videoUrl } : {}),
+    ...(f.image.url && f.answerType !== 'video' ? { imageUrl: f.image.url, imageAlt: f.image.alt, imageWidth: f.image.width, imageHeight: f.image.height } : {}),
   };
 }
 
@@ -193,6 +197,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
       !form.guide.warning.trim()
         ? A.needGuideContent
         : null,
+    videoUrl: form.answerType === 'video' && !driveFileId(form.videoUrl) ? A.invalidVideoLink : null,
     claim: form.answerType === 'claim' && ![...form.claim.terms, ...form.claim.documents].some((i) => i.text.trim()) ? A.needClaimContent : null,
     imageUrl: form.image.url && !/^https:\/\//i.test(form.image.url) ? A.invalidUrl : null,
   };
@@ -232,7 +237,9 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
       sectionId: input.sectionId,
       title: input.title.trim() || A.questionTitlePlaceholder,
       answerType:
-        input.answerType === 'claim' && input.claim
+        input.answerType === 'video' && input.videoUrl && driveFileId(input.videoUrl)
+          ? 'video'
+          : input.answerType === 'claim' && input.claim
           ? 'claim'
           : input.answerType === 'guide' && input.guide
           ? 'guide'
@@ -251,6 +258,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
         steps: input.guide.steps.map((i) => ({ ...i, imageUrl: i.imageUrl && toDisplayableImageUrl(i.imageUrl) })),
       },
       claim: input.claim,
+      videoUrl: input.videoUrl,
       translations: input.translations,
       image: input.imageUrl ? { url: toDisplayableImageUrl(input.imageUrl), alt: input.imageAlt || input.title, width: input.imageWidth, height: input.imageHeight } : null,
       order: 1,
@@ -381,7 +389,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
               <fieldset className="adm-field qe__fieldset">
                 <legend className="adm-label">{A.answerType}</legend>
                 <div className="qe__types">
-                  {(['paragraph', 'steps', 'types', 'guide', 'claim'] as const).map((type) => (
+                  {(['paragraph', 'steps', 'types', 'guide', 'claim', 'video'] as const).map((type) => (
                     <label key={type} className={`qe__type${form.answerType === type ? ' qe__type--active' : ''}`}>
                       <input
                         type="radio"
@@ -391,11 +399,11 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                         onChange={() => update('answerType', type)}
                       />
                       <span className="qe__type-icon">
-                        <Icon name={type === 'steps' ? 'steps' : type === 'types' ? 'cards' : type === 'guide' ? 'package' : type === 'claim' ? 'check' : 'paragraph'} />
+                        <Icon name={type === 'steps' ? 'steps' : type === 'types' ? 'cards' : type === 'guide' ? 'package' : type === 'claim' ? 'check' : type === 'video' ? 'play' : 'paragraph'} />
                       </span>
                       <span>
-                        <strong>{type === 'steps' ? A.typeSteps : type === 'types' ? A.typeTypes : type === 'guide' ? A.typeGuide : type === 'claim' ? A.typeClaim : A.typeParagraph}</strong>
-                        <small>{type === 'steps' ? A.typeStepsHint : type === 'types' ? A.typeTypesHint : type === 'guide' ? A.typeGuideHint : type === 'claim' ? A.typeClaimHint : A.typeParagraphHint}</small>
+                        <strong>{type === 'steps' ? A.typeSteps : type === 'types' ? A.typeTypes : type === 'guide' ? A.typeGuide : type === 'claim' ? A.typeClaim : type === 'video' ? A.typeVideo : A.typeParagraph}</strong>
+                        <small>{type === 'steps' ? A.typeStepsHint : type === 'types' ? A.typeTypesHint : type === 'guide' ? A.typeGuideHint : type === 'claim' ? A.typeClaimHint : type === 'video' ? A.typeVideoHint : A.typeParagraphHint}</small>
                       </span>
                     </label>
                   ))}
@@ -422,18 +430,32 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                 <>
                   <div className="adm-field">
                     <label htmlFor={ids.intro} className="adm-label">
-                      {A.intro} <small>{A.introOptional}</small>
+                      {form.answerType === 'video' ? A.videoDescription : A.intro} <small>{A.introOptional}</small>
                     </label>
                     <input
                       id={ids.intro}
                       className="adm-input"
                       dir="auto"
                       value={form.intro}
-                      placeholder={A.introPlaceholder}
+                      placeholder={form.answerType === 'video' ? A.videoDescriptionPlaceholder : A.introPlaceholder}
                       onChange={(e) => update('intro', e.target.value)}
                     />
                   </div>
-                  {form.answerType === 'claim' ? (
+                  {form.answerType === 'video' ? (
+                    <label className="adm-field">
+                      <span className="adm-label">{A.videoLink}</span>
+                      <input
+                        className="adm-input"
+                        dir="ltr"
+                        type="url"
+                        value={form.videoUrl}
+                        placeholder="https://drive.google.com/file/d/.../view"
+                        aria-invalid={show('videoUrl') ? true : undefined}
+                        onChange={(e) => update('videoUrl', e.target.value)}
+                      />
+                      {show('videoUrl') ? <p className="adm-error">{show('videoUrl')}</p> : <p className="adm-hint">{A.videoLinkHint}</p>}
+                    </label>
+                  ) : form.answerType === 'claim' ? (
                     <>
                       <label className="adm-field">
                         <span className="adm-label">{A.claimDeadline}</span>
@@ -474,6 +496,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                 </>
               )}
 
+              {form.answerType !== 'video' && (
               <div className="adm-field">
                 <span className="adm-label">
                   {A.image} <small>{A.imageOptional}</small>
@@ -485,6 +508,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                   urlError={show('imageUrl') ?? undefined}
                 />
               </div>
+              )}
             </div>
           )}
         </div>

@@ -6,6 +6,7 @@ import { AnswerContent } from '../AnswerContent/AnswerContent';
 import { ClaimGuide } from '../ClaimGuide/ClaimGuide';
 import { PackagingGuide } from '../PackagingGuide/PackagingGuide';
 import { TicketExplorer } from '../TicketExplorer/TicketExplorer';
+import { VideoGuide } from '../VideoGuide/VideoGuide';
 import './QuestionAccordion.css';
 
 interface Props {
@@ -38,7 +39,10 @@ export const QuestionAccordion = memo(function QuestionAccordion({
   const isTypes = question.answerType === 'types';
   const guide = question.answerType === 'guide' ? question.guide : undefined;
   const claim = question.answerType === 'claim' ? question.claim : undefined;
-  const typeTag = claim
+  const isVideo = question.answerType === 'video';
+  const typeTag = isVideo
+    ? t.answerVideo
+    : claim
     ? claim.deadline || t.answerNotes
     : guide
     ? guide.steps.length
@@ -76,7 +80,9 @@ export const QuestionAccordion = memo(function QuestionAccordion({
             <span className="qa__tags">
               <span className={`qa__tag qa__tag--${guide?.steps.length ? 'steps' : question.answerType}`}>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                  {claim ? (
+                  {isVideo ? (
+                    <path d="M8 5l11 7-11 7z" />
+                  ) : claim ? (
                     <>
                       <circle cx="12" cy="12" r="9" />
                       <path d="M12 7v5l3 2" />
@@ -114,8 +120,8 @@ export const QuestionAccordion = memo(function QuestionAccordion({
       {/* Collapsed panels stay mounted (for the height transition) but are inert. */}
       <div id={panelId} role="region" aria-labelledby={buttonId} className="qa__panel" inert={!isOpen}>
         <div className="qa__panel-inner">
-          <div className={`qa__body${isTypes || guide || claim ? ' qa__body--wide' : ''}`}>
-            {image && !isTypes && !guide && (
+          <div className={`qa__body${isTypes || guide || claim || isVideo ? ' qa__body--wide' : ''}`}>
+            {image && !isTypes && !guide && !isVideo && (
               <figure className="qa__figure">
                 <button
                   type="button"
@@ -148,7 +154,9 @@ export const QuestionAccordion = memo(function QuestionAccordion({
                 <figcaption className="qa__caption">{t.imageHint}</figcaption>
               </figure>
             )}
-            {claim ? (
+            {isVideo ? (
+              <VideoGuide question={question} isOpen={isOpen} />
+            ) : claim ? (
               <ClaimGuide question={question} />
             ) : guide ? (
               <PackagingGuide question={question} target={explorerTarget} onOpenImage={onOpenImage} />
