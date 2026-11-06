@@ -11,7 +11,11 @@ export function driveFileId(link: string): string | null {
   return id && /^[\w-]+$/.test(id) ? id : null;
 }
 
-/** The address Drive allows inside a frame. Older shared files also need their resource key. */
+/**
+ * The address Drive allows inside a frame. Drive refuses to serve the file itself to a video
+ * element on another site (403), so its player is the only way to play it here.
+ * Older shared files also need their resource key.
+ */
 export function driveEmbedUrl(link: string): string | null {
   const id = driveFileId(link);
   if (!id) return null;
