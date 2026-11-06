@@ -44,6 +44,7 @@ export const zh: Messages = {
   guidePrev: '上一步',
   guideNext: '下一步',
 
+  videoPlay: '播放视频',
   videoDownload: '下载视频',
   videoHint: '此按钮将在 Google Drive 中打开视频，您可以在那里下载。',
 

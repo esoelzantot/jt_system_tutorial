@@ -43,6 +43,7 @@ export const ar = {
   guidePrev: 'السابق',
   guideNext: 'التالي',
 
+  videoPlay: 'تشغيل الفيديو',
   videoDownload: 'تحميل الفيديو',
   videoHint: 'الزرار هيفتحلك الفيديو على Google Drive، ومن هناك تقدر تحمّله.',
 

@@ -43,6 +43,12 @@
   background: #1d1515;
 }
 
+.vg__screen video {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .vg__screen iframe {
   position: absolute;
   top: 0;
@@ -52,22 +58,55 @@
   transform-origin: top left;
 }
 
-/* Shown until the player has loaded. */
-.vg__loading {
+/* ---- Play button over the preview picture ---- */
+
+.vg__play {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  pointer-events: none;
+  width: 100%;
+  border: 0;
+  background: linear-gradient(to top, rgb(29 21 21 / 0.35), transparent 55%);
+  cursor: pointer;
 }
 
-.vg__loading span {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgb(255 255 255 / 0.25);
-  border-top-color: #fff;
+.vg__play span {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
+  background: var(--color-brand);
+  box-shadow: var(--shadow-brand);
+  transition: transform 0.2s var(--ease-spring);
+}
+
+.vg__play:hover span {
+  transform: scale(1.08);
+}
+
+.vg__play svg {
+  width: 32px;
+  height: 32px;
+  fill: #fff;
+}
+
+/* After pressing play, until the first frame arrives. */
+.vg__play--loading {
+  cursor: progress;
+}
+
+.vg__play--loading span {
+  border: 4px solid rgb(255 255 255 / 0.35);
+  border-top-color: #fff;
+  background: transparent;
+  box-shadow: none;
   animation: vg-spin 0.9s linear infinite;
+}
+
+.vg__play--loading svg {
+  display: none;
 }
 
 @keyframes vg-spin {
@@ -76,9 +115,15 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .vg__loading span {
-    animation-duration: 1.8s;
+@media (max-width: 480px) {
+  .vg__play span {
+    width: 56px;
+    height: 56px;
+  }
+
+  .vg__play svg {
+    width: 26px;
+    height: 26px;
   }
 }
 

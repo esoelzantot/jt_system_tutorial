@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../i18n/I18nContext';
 import type { Question } from '../../types/tutorial';
-import { driveEmbedUrl } from '../../utils/driveVideo';
+import { driveEmbedUrl, drivePosterUrl } from '../../utils/driveVideo';
 import './VideoGuide.css';
 
 interface Props {
@@ -10,41 +10,53 @@ interface Props {
   isOpen: boolean;
 }
 
-/**
- * Drive's player breaks when it is laid out narrower than this: its picture is cropped and its
- * controls land in the wrong place. So on small screens it keeps this width and is scaled down.
- */
-const PLAYER_WIDTH = 640;
+/** Below this width Drive's player crops its picture, so on small screens it keeps this width and is scaled down. */
+const DRIVE_PLAYER_WIDTH = 640;
 
-/** Answer of a video guide: the video in a window-style frame, a short description and a download link. */
+/**
+ * Answer of a video guide: the video in a window-style frame, a short description and a download link.
+ * The site's server streams the file to the browser's own player, which works on phones. If that fails
+ * (very large file, or too many downloads today), Drive's player takes over.
+ */
 export function VideoGuide({ question, isOpen }: Props) {
   const { t } = useI18n();
   const screenRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [scale, setScale] = useState(1);
-  const [loaded, setLoaded] = useState(false);
+  const [started, setStarted] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [failed, setFailed] = useState(false);
   const link = question.videoUrl ?? '';
   const embedUrl = driveEmbedUrl(link);
 
-  // The player is removed on close, so it loads again the next time.
+  // The player is removed on close, which stops the video, so it starts over the next time.
   useEffect(() => {
-    if (!isOpen) setLoaded(false);
+    if (isOpen) return;
+    setStarted(false);
+    setPlaying(false);
   }, [isOpen]);
 
   useEffect(() => {
     const screen = screenRef.current;
-    if (!screen || !isOpen) return;
-    const fit = () => setScale(Math.min(1, screen.clientWidth / PLAYER_WIDTH));
+    if (!screen || !isOpen || !failed) return;
+    const fit = () => setScale(Math.min(1, screen.clientWidth / DRIVE_PLAYER_WIDTH));
     fit();
     const observer = new ResizeObserver(fit);
     observer.observe(screen);
     return () => observer.disconnect();
-  }, [isOpen, embedUrl]);
+  }, [isOpen, failed]);
 
   if (!embedUrl) return null;
 
-  const playerSize =
+  const start = () => {
+    setStarted(true);
+    // If the browser refuses, its own controls are showing by now and can start the video.
+    videoRef.current?.play().catch(() => {});
+  };
+
+  const drivePlayerSize =
     scale < 1
-      ? { width: PLAYER_WIDTH, height: (PLAYER_WIDTH * 9) / 16, transform: `scale(${scale})` }
+      ? { width: DRIVE_PLAYER_WIDTH, height: (DRIVE_PLAYER_WIDTH * 9) / 16, transform: `scale(${scale})` }
       : { width: '100%', height: '100%' };
 
   return (
@@ -56,14 +68,31 @@ export function VideoGuide({ question, isOpen }: Props) {
           <span />
         </div>
         <div ref={screenRef} className="vg__screen">
-          {/* Only while open: this avoids loading every player, and closing the card stops the video. */}
-          {isOpen && (
-            <iframe src={embedUrl} title={question.title} style={playerSize} allow="autoplay; fullscreen" allowFullScreen onLoad={() => setLoaded(true)} />
-          )}
-          {!loaded && (
-            <span className="vg__loading" aria-hidden="true">
-              <span />
-            </span>
+          {isOpen &&
+            (failed ? (
+              <iframe src={embedUrl} title={question.title} style={drivePlayerSize} allow="autoplay; fullscreen" allowFullScreen />
+            ) : (
+              <video
+                ref={videoRef}
+                src={`/api/video?id=${encodeURIComponent(question.id)}`}
+                poster={drivePosterUrl(link) ?? undefined}
+                controls={started}
+                controlsList="nodownload"
+                playsInline
+                preload="none"
+                aria-label={question.title}
+                onPlaying={() => setPlaying(true)}
+                onError={() => setFailed(true)}
+              />
+            ))}
+          {isOpen && !failed && !playing && (
+            <button type="button" className={`vg__play${started ? ' vg__play--loading' : ''}`} aria-label={`${t.videoPlay}: ${question.title}`} disabled={started} onClick={start}>
+              <span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 5l11 7-11 7z" />
+                </svg>
+              </span>
+            </button>
           )}
         </div>
       </div>

@@ -11,14 +11,30 @@ export function driveFileId(link: string): string | null {
   return id && /^[\w-]+$/.test(id) ? id : null;
 }
 
-/**
- * The address Drive allows inside a frame. Drive refuses to serve the file itself to a video
- * element on another site (403), so its player is the only way to play it here.
- * Older shared files also need their resource key.
- */
+/** Older shared files also need their resource key. */
+const resourceKey = (link: string) => new URL(link.trim()).searchParams.get('resourcekey');
+
+/** The address Drive allows inside a frame: the fallback when the site cannot stream the file. */
 export function driveEmbedUrl(link: string): string | null {
   const id = driveFileId(link);
   if (!id) return null;
-  const resourceKey = new URL(link.trim()).searchParams.get('resourcekey');
-  return `https://drive.google.com/file/d/${id}/preview${resourceKey ? `?resourcekey=${encodeURIComponent(resourceKey)}` : ''}`;
+  const key = resourceKey(link);
+  return `https://drive.google.com/file/d/${id}/preview${key ? `?resourcekey=${encodeURIComponent(key)}` : ''}`;
+}
+
+/**
+ * The video file itself. Drive refuses it to browsers on other sites (403),
+ * so only the server can read this address (see api/video.ts).
+ */
+export function driveFileUrl(link: string): string | null {
+  const id = driveFileId(link);
+  if (!id) return null;
+  const key = resourceKey(link);
+  return `https://drive.usercontent.google.com/download?id=${id}&export=download${key ? `&resourcekey=${encodeURIComponent(key)}` : ''}`;
+}
+
+/** The preview picture Drive makes for the video. */
+export function drivePosterUrl(link: string): string | null {
+  const id = driveFileId(link);
+  return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1280` : null;
 }

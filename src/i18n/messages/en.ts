@@ -46,6 +46,7 @@ export const en: Messages = {
   guidePrev: 'Previous',
   guideNext: 'Next',
 
+  videoPlay: 'Play video',
   videoDownload: 'Download video',
   videoHint: 'This button opens the video on Google Drive, where you can download it.',
 
