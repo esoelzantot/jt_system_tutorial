@@ -16,7 +16,7 @@ import { deleteImages, listTutorialImages, uploadImage } from './lib/blob.mjs';
 import { getAdminDb } from './lib/firestore-admin.mjs';
 
 const SECTION_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const ANSWER_TYPES = ['paragraph', 'steps', 'types'];
+const ANSWER_TYPES = ['paragraph', 'steps', 'types', 'guide'];
 
 // ---------- terminal input ----------
 
@@ -125,6 +125,7 @@ function toQuestionFields(q, sectionIds) {
   if (q.answerType === 'paragraph' && !q.answerText?.trim()) errors.push('a "paragraph" answer needs answerText');
   const subtypes = Array.isArray(q.subtypes) ? q.subtypes.filter((s) => s?.title?.trim()) : [];
   if (q.answerType === 'types' && subtypes.length === 0) errors.push('a "types" answer needs at least one subtype');
+  if (q.answerType === 'guide' && !q.guide) errors.push('a "guide" answer needs a guide object');
   if (errors.length) throw new Error(errors.join('; '));
 
   return {
@@ -145,6 +146,7 @@ function toQuestionFields(q, sectionIds) {
           })),
         }
       : {}),
+    ...(q.answerType === 'guide' ? { guide: q.guide } : {}),
     ...(q.translations ? { translations: q.translations } : {}),
     ...(q.imageUrl ? { imageUrl: q.imageUrl, imageAlt: (q.imageAlt || q.title).trim() } : {}),
   };
@@ -292,10 +294,28 @@ async function importFile(db, file) {
   if (!(await confirm('Continue?'))) return console.log('Nothing written.');
 
   // Upload local images first, so a failed upload leaves Firestore untouched.
+  const uploaded = new Map(); // The same picture is used by several guides: upload it once.
+  const upload = async (file) => {
+    if (!uploaded.has(file)) uploaded.set(file, await resolveImage(file, dirname(path)));
+    return uploaded.get(file);
+  };
+  const resolveItems = async (items = []) => {
+    const out = [];
+    for (const { imageFile, ...item } of items) out.push({ ...item, ...(imageFile ? { imageUrl: await upload(imageFile) } : {}) });
+    return out;
+  };
+
   const questionFields = [];
   for (const q of newQuestions) {
-    const imageUrl = q.imageFile ? await resolveImage(q.imageFile, dirname(path)) : q.imageUrl;
-    questionFields.push({ id: q.id, fields: toQuestionFields({ ...q, imageUrl }, sectionIds) });
+    const imageUrl = q.imageFile ? await upload(q.imageFile) : q.imageUrl;
+    const guide = q.guide && {
+      examples: await resolveItems(q.guide.examples),
+      materials: await resolveItems(q.guide.materials),
+      steps: await resolveItems(q.guide.steps),
+      notes: q.guide.notes ?? [],
+      warning: q.guide.warning ?? '',
+    };
+    questionFields.push({ id: q.id, fields: toQuestionFields({ ...q, imageUrl, guide }, sectionIds) });
   }
 
   const batch = db.batch();

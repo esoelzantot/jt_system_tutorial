@@ -28,7 +28,18 @@ export const ar = {
   answerParagraph: 'شرح',
   answerTypes: (n: number) => (n === 1 ? 'نوع واحد' : n === 2 ? 'نوعان' : n <= 10 ? `${n} أنواع` : `${n} نوعًا`),
   imageTag: 'صورة توضيحية',
+  answerMaterials: (n: number) => (n === 1 ? 'مادة واحدة' : n === 2 ? 'مادتان' : n <= 10 ? `${n} مواد` : `${n} مادة`),
+  answerNotes: 'تعليمات',
   notTranslated: 'بالعربية فقط',
+
+  guideExamples: 'أمثلة',
+  guideMaterials: 'جهّز المواد دي',
+  guideMaterialsAll: 'مواد التغليف',
+  guideReady: (done: number, total: number) => `${done} من ${total} جاهز`,
+  guideSteps: 'خطوات التغليف',
+  guideStepOf: (n: number, total: number) => `الخطوة ${n} من ${total}`,
+  guidePrev: 'السابق',
+  guideNext: 'التالي',
 
   explorerMeaning: 'ما معناها؟',
   explorerWhen: 'متى تستخدمها؟',

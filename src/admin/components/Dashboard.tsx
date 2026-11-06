@@ -59,7 +59,10 @@ export function Dashboard({ email }: { email: string }) {
     if (tokens.length === 0) return [];
     return questions.filter((q) => {
       const subtypes = q.subtypes.flatMap((s) => [s.title, s.titleEn, s.meaning, s.whenToUse]);
-      const haystack = normalizeWithMap([q.title, q.answerText, ...q.steps, ...subtypes].join(' ')).value;
+      const guide = q.guide
+        ? [...q.guide.examples, ...q.guide.materials, ...q.guide.steps].map((i) => i.text).concat(q.guide.notes, q.guide.warning)
+        : [];
+      const haystack = normalizeWithMap([q.title, q.answerText, ...q.steps, ...subtypes, ...guide].join(' ')).value;
       return tokens.every((t) => haystack.includes(t));
     });
   }, [questions, tokens]);
@@ -139,12 +142,14 @@ export function Dashboard({ email }: { email: string }) {
           </span>
           <span className="dq__tags">
             <span className={`dq__tag dq__tag--${q.answerType}`}>
-              <Icon name={q.answerType === 'steps' ? 'steps' : q.answerType === 'types' ? 'cards' : 'paragraph'} />
+              <Icon name={q.answerType === 'steps' ? 'steps' : q.answerType === 'types' ? 'cards' : q.answerType === 'guide' ? 'package' : 'paragraph'} />
               {q.answerType === 'steps'
                 ? `${q.steps.length} ${A.typeSteps}`
                 : q.answerType === 'types'
                   ? A.subtypesCount(q.subtypes.length)
-                  : A.typeParagraph}
+                  : q.answerType === 'guide'
+                    ? A.typeGuide
+                    : A.typeParagraph}
             </span>
             {q.imageUrl && (
               <span className="dq__tag dq__tag--image">

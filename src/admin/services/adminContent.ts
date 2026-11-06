@@ -14,7 +14,7 @@ import {
 import { TRANSLATION_LANGS } from '../../i18n/config';
 import { getDb } from '../../services/firebase';
 import { QUESTIONS_COLLECTION, SECTIONS_COLLECTION } from '../../services/tutorialService';
-import type { QuestionTranslation, SectionTranslation, Translations } from '../../types/tutorial';
+import type { GuideItem, GuideItemTranslation, GuideTranslation, PackagingGuide, QuestionTranslation, SectionTranslation, Translations } from '../../types/tutorial';
 import type { AdminQuestion, AdminSection, QuestionInput } from '../types';
 
 const sectionsRef = () => collection(getDb(), SECTIONS_COLLECTION);
@@ -29,7 +29,7 @@ function toQuestion(id: string, d: DocumentData): AdminQuestion {
     title: String(d.title ?? ''),
     // Numbers typed as text in the Firebase console still sort correctly.
     order: Number(d.order) || 0,
-    answerType: d.answerType === 'steps' || d.answerType === 'types' ? d.answerType : 'paragraph',
+    answerType: d.answerType === 'steps' || d.answerType === 'types' || d.answerType === 'guide' ? d.answerType : 'paragraph',
     answerText: String(d.answerText ?? ''),
     steps: Array.isArray(d.steps) ? d.steps.map(String) : [],
     subtypes: Array.isArray(d.subtypes)
@@ -41,6 +41,17 @@ function toQuestion(id: string, d: DocumentData): AdminQuestion {
           icon: String(s?.icon ?? ''),
         }))
       : [],
+    ...(d.guide
+      ? {
+          guide: {
+            examples: d.guide.examples ?? [],
+            materials: d.guide.materials ?? [],
+            steps: d.guide.steps ?? [],
+            notes: d.guide.notes ?? [],
+            warning: d.guide.warning ?? '',
+          },
+        }
+      : {}),
     ...(d.translations ? { translations: d.translations } : {}),
     ...(d.imageUrl ? { imageUrl: String(d.imageUrl), imageAlt: String(d.imageAlt ?? '') } : {}),
     ...(typeof d.imageWidth === 'number' ? { imageWidth: d.imageWidth } : {}),
@@ -124,10 +135,28 @@ function cleanQuestionTranslations(translations: Translations<QuestionTranslatio
         whenToUse: s.whenToUse?.trim() ?? '',
       }));
     }
+    if (tr.guide) {
+      const items = (list: GuideItemTranslation[] = []) => list.map((i) => ({ text: i.text?.trim() ?? '', note: i.note?.trim() ?? '' }));
+      const guide: GuideTranslation = { examples: items(tr.guide.examples), materials: items(tr.guide.materials), steps: items(tr.guide.steps), notes: (tr.guide.notes ?? []).map((n) => n.trim()), warning: tr.guide.warning?.trim() ?? '' };
+      const anyText = [...guide.examples!, ...guide.materials!, ...guide.steps!].some((i) => i.text || i.note) || guide.notes!.some(Boolean) || guide.warning;
+      if (anyText) out.guide = guide;
+    }
     if (Object.keys(out).length > 0) clean[lang] = out;
   }
   return clean;
 }
+
+/** Firestore refuses undefined values, so optional fields are only written when set. */
+const cleanGuideItems = (items: GuideItem[]) =>
+  items.map((i) => ({ text: i.text.trim(), ...(i.note?.trim() ? { note: i.note.trim() } : {}), ...(i.imageUrl ? { imageUrl: i.imageUrl } : {}) }));
+
+const cleanGuide = (g: PackagingGuide): PackagingGuide => ({
+  examples: cleanGuideItems(g.examples),
+  materials: cleanGuideItems(g.materials),
+  steps: cleanGuideItems(g.steps),
+  notes: g.notes.map((n) => n.trim()),
+  warning: g.warning.trim(),
+});
 
 function cleanQuestion(input: QuestionInput, order: number) {
   const steps = input.steps.map((s) => s.trim()).filter(Boolean);
@@ -138,6 +167,7 @@ function cleanQuestion(input: QuestionInput, order: number) {
     answerType: input.answerType,
     answerText: input.answerText.trim(),
     translations: cleanQuestionTranslations(input.translations),
+    ...(input.answerType === 'guide' && input.guide ? { guide: cleanGuide(input.guide) } : {}),
     steps: input.answerType === 'steps' ? steps : [],
     ...(input.answerType === 'types'
       ? {

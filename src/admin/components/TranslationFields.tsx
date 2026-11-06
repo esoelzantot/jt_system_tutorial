@@ -1,6 +1,7 @@
 import { languageInfo, type TranslationLang } from '../../i18n/config';
 import type { SubtypeTranslation } from '../../types/tutorial';
 import { A } from '../strings';
+import type { GuideEditItem, GuideEditState } from './GuideEditor';
 import type { StepItem } from './StepsEditor';
 import type { SubtypeItem } from './SubtypesEditor';
 
@@ -20,6 +21,8 @@ interface Props {
   text: TextTranslation;
   steps: StepItem[];
   subtypes: SubtypeItem[];
+  guide: GuideEditState | null;
+  onGuideChange: (guide: GuideEditState) => void;
   onTextChange: (patch: Partial<TextTranslation>) => void;
   onStepsChange: (steps: StepItem[]) => void;
   onSubtypesChange: (subtypes: SubtypeItem[]) => void;
@@ -63,7 +66,7 @@ function Field({
  * Only texts change here. Structure (answer type, section, image, adding or reordering steps)
  * stays in the Arabic tab, and each translated step moves together with its Arabic step.
  */
-export function TranslationFields({ lang, title, answerText, hasImage, isSteps, isTypes, text, steps, subtypes, onTextChange, onStepsChange, onSubtypesChange }: Props) {
+export function TranslationFields({ lang, title, answerText, hasImage, isSteps, isTypes, text, steps, subtypes, guide, onGuideChange, onTextChange, onStepsChange, onSubtypesChange }: Props) {
   const filledSteps = steps.filter((s) => s.text.trim());
   const filledSubtypes = subtypes.filter((s) => s.title.trim());
 
@@ -109,6 +112,55 @@ export function TranslationFields({ lang, title, answerText, hasImage, isSteps, 
             )}
           </fieldset>
         ))}
+
+      {guide &&
+        (
+          [
+            ['examples', A.guideExamples],
+            ['materials', A.guideMaterials],
+            ['steps', A.steps],
+          ] as const
+        ).map(([kind, label]) =>
+          guide[kind]
+            .filter((item) => item.text.trim())
+            .map((item, i) => {
+              const setItem = (patch: Partial<GuideEditItem['tr'][typeof lang]>) =>
+                onGuideChange({
+                  ...guide,
+                  [kind]: guide[kind].map((x) => (x.key === item.key ? { ...x, tr: { ...x.tr, [lang]: { ...x.tr[lang], ...patch } } } : x)),
+                });
+              return (
+                <div key={item.key} className="qe__fields">
+                  <Field lang={lang} label={`${label} ${i + 1}`} reference={item.text} value={item.tr[lang].text} onChange={(v) => setItem({ text: v })} />
+                  {item.note.trim() && <Field lang={lang} label={A.guideNote} reference={item.note} value={item.tr[lang].note} onChange={(v) => setItem({ note: v })} />}
+                </div>
+              );
+            }),
+        )}
+
+      {guide &&
+        guide.notes
+          .filter((n) => n.text.trim())
+          .map((note, i) => (
+            <Field
+              key={note.key}
+              lang={lang}
+              label={`${A.guideNotes} ${i + 1}`}
+              reference={note.text}
+              value={note.tr[lang]}
+              onChange={(v) => onGuideChange({ ...guide, notes: guide.notes.map((x) => (x.key === note.key ? { ...x, tr: { ...x.tr, [lang]: v } } : x)) })}
+            />
+          ))}
+
+      {guide?.warning.trim() && (
+        <Field
+          lang={lang}
+          label={A.guideWarning}
+          reference={guide.warning}
+          value={guide.warningTr[lang]}
+          onChange={(v) => onGuideChange({ ...guide, warningTr: { ...guide.warningTr, [lang]: v } })}
+        />
+      )}
 
       {hasImage && (
         <label className="tr-field">

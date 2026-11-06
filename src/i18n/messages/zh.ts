@@ -29,7 +29,18 @@ export const zh: Messages = {
   answerParagraph: '说明',
   answerTypes: (n) => `${n} 种类型`,
   imageTag: '截图',
+  answerMaterials: (n) => `${n} 种材料`,
+  answerNotes: '注意事项',
   notTranslated: '仅阿拉伯语',
+
+  guideExamples: '示例',
+  guideMaterials: '请准备以下材料',
+  guideMaterialsAll: '包装材料',
+  guideReady: (done, total) => `已准备 ${done} / ${total}`,
+  guideSteps: '包装步骤',
+  guideStepOf: (n, total) => `第 ${n} 步，共 ${total} 步`,
+  guidePrev: '上一步',
+  guideNext: '下一步',
 
   explorerMeaning: '这是什么意思？',
   explorerWhen: '何时使用？',

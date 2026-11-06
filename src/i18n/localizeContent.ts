@@ -1,4 +1,4 @@
-import type { QuestionTranslation, Question, Section, TicketSubtype, Translations } from '../types/tutorial';
+import type { GuideItem, GuideItemTranslation, PackagingGuide, QuestionTranslation, Question, Section, TicketSubtype, Translations } from '../types/tutorial';
 import type { Lang, TranslationLang } from './config';
 
 const pick = (translated: string | undefined, base: string) => translated?.trim() || base;
@@ -9,6 +9,7 @@ interface TranslatableQuestion {
   answerText: string;
   steps: string[];
   subtypes: TicketSubtype[];
+  guide?: PackagingGuide;
   translations?: Translations<QuestionTranslation>;
 }
 
@@ -18,6 +19,8 @@ export type TranslationStatus = 'complete' | 'partial' | 'none';
 export function translationStatus(q: TranslatableQuestion, lang: TranslationLang): TranslationStatus {
   const tr = q.translations?.[lang];
   const has = (value: string | undefined) => !!value?.trim();
+  const itemChecks = (items: GuideItem[] = [], translated: GuideItemTranslation[] = []) =>
+    items.flatMap((item, i) => [has(translated[i]?.text), ...(item.note?.trim() ? [has(translated[i]?.note)] : [])]);
   const checks = [
     has(tr?.title),
     ...(q.answerText.trim() ? [has(tr?.answerText)] : []),
@@ -27,10 +30,22 @@ export function translationStatus(q: TranslatableQuestion, lang: TranslationLang
       has(tr?.subtypes?.[i]?.meaning),
       ...(s.whenToUse.trim() ? [has(tr?.subtypes?.[i]?.whenToUse)] : []),
     ]),
+    ...itemChecks(q.guide?.examples, tr?.guide?.examples),
+    ...itemChecks(q.guide?.materials, tr?.guide?.materials),
+    ...itemChecks(q.guide?.steps, tr?.guide?.steps),
+    ...(q.guide?.notes ?? []).map((_, i) => has(tr?.guide?.notes?.[i])),
+    ...(q.guide?.warning?.trim() ? [has(tr?.guide?.warning)] : []),
   ];
   if (checks.every(Boolean)) return 'complete';
   return checks.some(Boolean) ? 'partial' : 'none';
 }
+
+const localizeItems = (items: GuideItem[], translated: GuideItemTranslation[] = []): GuideItem[] =>
+  items.map((item, i) => ({
+    ...item,
+    text: pick(translated[i]?.text, item.text),
+    note: pick(translated[i]?.note, item.note ?? ''),
+  }));
 
 /** Applies a translation field by field: anything missing stays in Arabic rather than blank. */
 export function localizeQuestion(q: Question, lang: Lang): Question {
@@ -53,6 +68,13 @@ export function localizeQuestion(q: Question, lang: Lang): Question {
         whenToUse: pick(st?.whenToUse, s.whenToUse),
       };
     }),
+    guide: q.guide && {
+      examples: localizeItems(q.guide.examples, tr?.guide?.examples),
+      materials: localizeItems(q.guide.materials, tr?.guide?.materials),
+      steps: localizeItems(q.guide.steps, tr?.guide?.steps),
+      notes: q.guide.notes.map((note, i) => pick(tr?.guide?.notes?.[i], note)),
+      warning: pick(tr?.guide?.warning, q.guide.warning),
+    },
     image: q.image && { ...q.image, alt: tr?.imageAlt?.trim() || tr?.title?.trim() || q.image.alt },
     untranslated: translationStatus(q, lang) !== 'complete',
   };

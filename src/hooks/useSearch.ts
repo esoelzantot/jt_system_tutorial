@@ -38,6 +38,12 @@ function buildIndex(sections: Section[]): IndexEntry[] {
         ...question.subtypes.map((s, i) =>
           field(`${s.title}${s.titleEn ? ` (${s.titleEn})` : ''}: ${s.meaning} ${s.whenToUse}`.trim(), undefined, i),
         ),
+        ...(question.guide?.steps ?? []).map((step, i) => field(step.text, i + 1)),
+        ...[...(question.guide?.examples ?? []), ...(question.guide?.materials ?? [])].map((item) =>
+          field(item.note ? `${item.text} (${item.note})` : item.text),
+        ),
+        ...(question.guide?.notes ?? []).map((note) => field(note)),
+        ...(question.guide?.warning ? [field(question.guide.warning)] : []),
       ],
     }));
   });

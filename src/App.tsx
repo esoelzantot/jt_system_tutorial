@@ -96,8 +96,9 @@ export function App() {
       // Set before scrolling: a highlighted answer opens without animation (see QuestionAccordion.css).
       setHighlightedId(question.id);
       // A new object each time, so picking the same result twice still re-targets.
-      if (question.answerType === 'types') {
-        setExplorerTarget({ questionId: question.id, subtypeIndex: snippet?.subtypeIndex });
+      if (question.answerType === 'types' || question.answerType === 'guide') {
+        const stepIndex = question.answerType === 'guide' && snippet?.stepNumber ? snippet.stepNumber - 1 : undefined;
+        setExplorerTarget({ questionId: question.id, subtypeIndex: snippet?.subtypeIndex, stepIndex });
       }
       navigate(
         section.id,

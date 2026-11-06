@@ -498,6 +498,11 @@
   color: #b3471f;
 }
 
+.dq__tag--guide {
+  background: #eef7f1;
+  color: #12744a;
+}
+
 .dq__tag--types {
   background: var(--color-brand-soft);
   color: var(--color-brand-text);

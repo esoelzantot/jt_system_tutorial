@@ -9,6 +9,7 @@ import { A } from '../strings';
 import type { AdminQuestion, AdminSection, QuestionInput } from '../types';
 import { Dialog } from './Dialog';
 import { useFeedback } from './feedback';
+import { GuideEditor, makeGuideItem, makeGuideNote, type GuideEditItem, type GuideEditState } from './GuideEditor';
 import { Icon } from './Icon';
 import { ImageField, type ImageValue } from './ImageField';
 import { makeStep, StepsEditor, type StepItem } from './StepsEditor';
@@ -33,19 +34,22 @@ interface FormState {
   intro: string;
   steps: StepItem[];
   subtypes: SubtypeItem[];
+  guide: GuideEditState;
   image: ImageValue;
   /** Question-level translated texts; step and subtype translations live on their items. */
   text: Record<TranslationLang, TextTranslation>;
 }
 
 function initialForm(q: AdminQuestion | null, sectionId: string): FormState {
-  const hasIntro = q?.answerType === 'steps' || q?.answerType === 'types';
+  const hasIntro = q?.answerType === 'steps' || q?.answerType === 'types' || q?.answerType === 'guide';
   const tr = q?.translations;
   const textOf = (lang: TranslationLang): TextTranslation => ({
     title: tr?.[lang]?.title ?? '',
     answerText: tr?.[lang]?.answerText ?? '',
     imageAlt: tr?.[lang]?.imageAlt ?? '',
   });
+  const guideItems = (kind: 'examples' | 'materials' | 'steps') =>
+    (q?.guide?.[kind] ?? []).map((item, i) => makeGuideItem(item, { en: tr?.en?.guide?.[kind]?.[i], zh: tr?.zh?.guide?.[kind]?.[i] }));
   return {
     sectionId,
     title: q?.title ?? '',
@@ -56,6 +60,14 @@ function initialForm(q: AdminQuestion | null, sectionId: string): FormState {
     subtypes: q?.subtypes.length
       ? q.subtypes.map((s, i) => makeSubtype(s, { en: tr?.en?.subtypes?.[i], zh: tr?.zh?.subtypes?.[i] }))
       : [makeSubtype()],
+    guide: {
+      examples: guideItems('examples'),
+      materials: guideItems('materials'),
+      steps: guideItems('steps'),
+      notes: (q?.guide?.notes ?? []).map((n, i) => makeGuideNote(n, { en: tr?.en?.guide?.notes?.[i], zh: tr?.zh?.guide?.notes?.[i] })),
+      warning: q?.guide?.warning ?? '',
+      warningTr: { en: tr?.en?.guide?.warning ?? '', zh: tr?.zh?.guide?.warning ?? '' },
+    },
     text: { en: textOf('en'), zh: textOf('zh') },
     image: { url: q?.imageUrl ?? '', alt: q?.imageAlt ?? '', width: q?.imageWidth, height: q?.imageHeight },
   };
@@ -65,14 +77,32 @@ function toInput(f: FormState): QuestionInput {
   // Blank rows are dropped here, so translation indexes always match the saved Arabic list.
   const steps = f.answerType === 'steps' ? f.steps.filter((s) => s.text.trim()) : [];
   const subtypes = f.answerType === 'types' ? f.subtypes.filter((s) => s.title.trim()) : [];
+  const isGuide = f.answerType === 'guide';
+  const filled = (items: GuideEditItem[]) => (isGuide ? items.filter((i) => i.text.trim()) : []);
+  const examples = filled(f.guide.examples);
+  const materials = filled(f.guide.materials);
+  const guideSteps = filled(f.guide.steps);
+  const notes = isGuide ? f.guide.notes.filter((n) => n.text.trim()) : [];
   const translations: Translations<QuestionTranslation> = {};
   for (const lang of TRANSLATION_LANGS) {
     translations[lang] = {
       ...f.text[lang],
       steps: steps.map((s) => s.tr[lang]),
       subtypes: subtypes.map((s) => s.tr[lang]),
+      ...(isGuide
+        ? {
+            guide: {
+              examples: examples.map((i) => i.tr[lang]),
+              materials: materials.map((i) => i.tr[lang]),
+              steps: guideSteps.map((i) => i.tr[lang]),
+              notes: notes.map((n) => n.tr[lang]),
+              warning: f.guide.warningTr[lang],
+            },
+          }
+        : {}),
     };
   }
+  const plain = ({ text, note, imageUrl }: GuideEditItem) => ({ text, ...(note ? { note } : {}), ...(imageUrl ? { imageUrl } : {}) });
   return {
     sectionId: f.sectionId,
     title: f.title,
@@ -80,6 +110,17 @@ function toInput(f: FormState): QuestionInput {
     answerText: f.answerType === 'paragraph' ? f.answerText : f.intro,
     steps: steps.map((s) => s.text),
     subtypes: subtypes.map(({ key: _key, tr: _tr, ...s }) => s),
+    ...(isGuide
+      ? {
+          guide: {
+            examples: examples.map(plain),
+            materials: materials.map(plain),
+            steps: guideSteps.map(plain),
+            notes: notes.map((n) => n.text),
+            warning: f.guide.warning,
+          },
+        }
+      : {}),
     translations,
     ...(f.image.url ? { imageUrl: f.image.url, imageAlt: f.image.alt, imageWidth: f.image.width, imageHeight: f.image.height } : {}),
   };
@@ -113,6 +154,12 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
       form.answerType === 'types' &&
       (!form.subtypes.some((s) => s.title.trim()) || form.subtypes.some((s) => s.title.trim() && !s.meaning.trim()))
         ? A.needSubtype
+        : null,
+    guide:
+      form.answerType === 'guide' &&
+      ![...form.guide.examples, ...form.guide.materials, ...form.guide.steps, ...form.guide.notes].some((i) => i.text.trim()) &&
+      !form.guide.warning.trim()
+        ? A.needGuideContent
         : null,
     imageUrl: form.image.url && !/^https:\/\//i.test(form.image.url) ? A.invalidUrl : null,
   };
@@ -152,7 +199,9 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
       sectionId: input.sectionId,
       title: input.title.trim() || A.questionTitlePlaceholder,
       answerType:
-        input.answerType === 'types' && input.subtypes.some((s) => s.title.trim())
+        input.answerType === 'guide' && input.guide
+          ? 'guide'
+          : input.answerType === 'types' && input.subtypes.some((s) => s.title.trim())
           ? 'types'
           : input.answerType === 'steps' && input.steps.some((s) => s.trim())
             ? 'steps'
@@ -160,6 +209,12 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
       answerText: input.answerText.trim(),
       steps: input.steps.map((s) => s.trim()),
       subtypes: input.subtypes,
+      guide: input.guide && {
+        ...input.guide,
+        examples: input.guide.examples.map((i) => ({ ...i, imageUrl: i.imageUrl && toDisplayableImageUrl(i.imageUrl) })),
+        materials: input.guide.materials.map((i) => ({ ...i, imageUrl: i.imageUrl && toDisplayableImageUrl(i.imageUrl) })),
+        steps: input.guide.steps.map((i) => ({ ...i, imageUrl: i.imageUrl && toDisplayableImageUrl(i.imageUrl) })),
+      },
       translations: input.translations,
       image: input.imageUrl ? { url: toDisplayableImageUrl(input.imageUrl), alt: input.imageAlt || input.title, width: input.imageWidth, height: input.imageHeight } : null,
       order: 1,
@@ -239,6 +294,8 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
               hasImage={!!form.image.url}
               isSteps={form.answerType === 'steps'}
               isTypes={form.answerType === 'types'}
+              guide={form.answerType === 'guide' ? form.guide : null}
+              onGuideChange={(guide) => update('guide', guide)}
               text={form.text[editLang]}
               steps={form.steps}
               subtypes={form.subtypes}
@@ -286,7 +343,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
               <fieldset className="adm-field qe__fieldset">
                 <legend className="adm-label">{A.answerType}</legend>
                 <div className="qe__types">
-                  {(['paragraph', 'steps', 'types'] as const).map((type) => (
+                  {(['paragraph', 'steps', 'types', 'guide'] as const).map((type) => (
                     <label key={type} className={`qe__type${form.answerType === type ? ' qe__type--active' : ''}`}>
                       <input
                         type="radio"
@@ -296,11 +353,11 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                         onChange={() => update('answerType', type)}
                       />
                       <span className="qe__type-icon">
-                        <Icon name={type === 'steps' ? 'steps' : type === 'types' ? 'cards' : 'paragraph'} />
+                        <Icon name={type === 'steps' ? 'steps' : type === 'types' ? 'cards' : type === 'guide' ? 'package' : 'paragraph'} />
                       </span>
                       <span>
-                        <strong>{type === 'steps' ? A.typeSteps : type === 'types' ? A.typeTypes : A.typeParagraph}</strong>
-                        <small>{type === 'steps' ? A.typeStepsHint : type === 'types' ? A.typeTypesHint : A.typeParagraphHint}</small>
+                        <strong>{type === 'steps' ? A.typeSteps : type === 'types' ? A.typeTypes : type === 'guide' ? A.typeGuide : A.typeParagraph}</strong>
+                        <small>{type === 'steps' ? A.typeStepsHint : type === 'types' ? A.typeTypesHint : type === 'guide' ? A.typeGuideHint : A.typeParagraphHint}</small>
                       </span>
                     </label>
                   ))}
@@ -338,6 +395,12 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                       onChange={(e) => update('intro', e.target.value)}
                     />
                   </div>
+                  {form.answerType === 'guide' ? (
+                    <>
+                      <GuideEditor guide={form.guide} onChange={(guide) => update('guide', guide)} onBusyChange={setUploading} />
+                      {show('guide') && <p className="adm-error">{show('guide')}</p>}
+                    </>
+                  ) : (
                   <div className="adm-field">
                     <span className="adm-label">{form.answerType === 'types' ? A.subtypes : A.steps}</span>
                     {form.answerType === 'types' ? (
@@ -348,6 +411,7 @@ export function QuestionEditor({ question, defaultSectionId, sections, onClose, 
                     {show('steps') && <p className="adm-error">{show('steps')}</p>}
                     {show('subtypes') && <p className="adm-error">{show('subtypes')}</p>}
                   </div>
+                  )}
                 </>
               )}
 

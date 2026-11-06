@@ -1,6 +1,22 @@
 import type { TranslationLang } from '../i18n/config';
 
-export type AnswerType = 'paragraph' | 'steps' | 'types';
+export type AnswerType = 'paragraph' | 'steps' | 'types' | 'guide';
+
+/** A row in a packaging guide: an example, a material or a step. */
+export interface GuideItem {
+  text: string;
+  note?: string;
+  imageUrl?: string;
+}
+
+/** Structured answer of a question with answerType "guide". */
+export interface PackagingGuide {
+  examples: GuideItem[];
+  materials: GuideItem[];
+  steps: GuideItem[];
+  notes: string[];
+  warning: string;
+}
 
 /** One subtype of a ticket: a question with answerType "types" is the main type. */
 export interface TicketSubtype {
@@ -21,11 +37,25 @@ export interface SubtypeTranslation {
 }
 
 /** Texts of a question in another language. Steps and subtypes follow the Arabic order by index. */
+export interface GuideItemTranslation {
+  text?: string;
+  note?: string;
+}
+
+export interface GuideTranslation {
+  examples?: GuideItemTranslation[];
+  materials?: GuideItemTranslation[];
+  steps?: GuideItemTranslation[];
+  notes?: string[];
+  warning?: string;
+}
+
 export interface QuestionTranslation {
   title?: string;
   answerText?: string;
   steps?: string[];
   subtypes?: SubtypeTranslation[];
+  guide?: GuideTranslation;
   imageAlt?: string;
 }
 
@@ -49,6 +79,7 @@ export interface Question {
   answerText: string;
   steps: string[];
   subtypes: TicketSubtype[];
+  guide?: PackagingGuide;
   image: TutorialImage | null;
   order: number;
   translations?: Translations<QuestionTranslation>;
@@ -88,6 +119,7 @@ export interface SearchResult {
 export interface ExplorerTarget {
   questionId: string;
   subtypeIndex?: number;
+  stepIndex?: number;
 }
 
 /** Where to go when navigating from the menu or from a search result. */

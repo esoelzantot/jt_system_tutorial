@@ -31,7 +31,18 @@ export const en: Messages = {
   answerParagraph: 'Explanation',
   answerTypes: (n) => plural(n, 'type', 'types'),
   imageTag: 'Screenshot',
+  answerMaterials: (n) => plural(n, 'material', 'materials'),
+  answerNotes: 'Instructions',
   notTranslated: 'Arabic only',
+
+  guideExamples: 'Examples',
+  guideMaterials: 'Get these materials ready',
+  guideMaterialsAll: 'Packaging materials',
+  guideReady: (done, total) => `${done} of ${total} ready`,
+  guideSteps: 'Packaging steps',
+  guideStepOf: (n, total) => `Step ${n} of ${total}`,
+  guidePrev: 'Previous',
+  guideNext: 'Next',
 
   explorerMeaning: 'What does it mean?',
   explorerWhen: 'When to use it?',

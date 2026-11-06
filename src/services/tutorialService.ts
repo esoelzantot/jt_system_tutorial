@@ -1,5 +1,5 @@
 import { collection, getDocs, orderBy, query, type DocumentData } from 'firebase/firestore/lite';
-import type { AnswerType, Question, Section, TicketSubtype, TutorialImage } from '../types/tutorial';
+import type { AnswerType, GuideItem, PackagingGuide, Question, Section, TicketSubtype, TutorialImage } from '../types/tutorial';
 import { toDisplayableImageUrl } from '../utils/imageUrl';
 import { getDb } from './firebase';
 
@@ -38,12 +38,42 @@ function toSubtypes(value: unknown): TicketSubtype[] {
     .filter((s) => s.title);
 }
 
+function toGuideItems(value: unknown): GuideItem[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item: DocumentData): GuideItem => {
+      const imageUrl = asString(item?.imageUrl);
+      return {
+        text: asString(item?.text),
+        note: asString(item?.note),
+        ...(imageUrl ? { imageUrl: toDisplayableImageUrl(imageUrl) } : {}),
+      };
+    })
+    .filter((item) => item.text);
+}
+
+function toGuide(value: unknown): PackagingGuide | undefined {
+  const g = asObject<DocumentData>(value);
+  if (!g) return undefined;
+  const guide: PackagingGuide = {
+    examples: toGuideItems(g.examples),
+    materials: toGuideItems(g.materials),
+    steps: toGuideItems(g.steps),
+    notes: Array.isArray(g.notes) ? g.notes.map(asString).filter(Boolean) : [],
+    warning: asString(g.warning),
+  };
+  const hasContent = guide.examples.length + guide.materials.length + guide.steps.length + guide.notes.length > 0 || guide.warning;
+  return hasContent ? guide : undefined;
+}
+
 function toQuestion(id: string, data: DocumentData, index: number): Question {
   const steps = Array.isArray(data.steps) ? data.steps.map(asString).filter(Boolean) : [];
   const subtypes = toSubtypes(data.subtypes);
   // An answer without its steps or subtypes falls back to the paragraph so nothing renders empty.
-  const answerType: AnswerType =
-    data.answerType === 'types' && subtypes.length > 0
+  const guide = data.answerType === 'guide' ? toGuide(data.guide) : undefined;
+  const answerType: AnswerType = guide
+    ? 'guide'
+    : data.answerType === 'types' && subtypes.length > 0
       ? 'types'
       : data.answerType === 'steps' && steps.length > 0
         ? 'steps'
@@ -57,6 +87,7 @@ function toQuestion(id: string, data: DocumentData, index: number): Question {
     answerText: asString(data.answerText),
     steps,
     subtypes,
+    guide,
     image: toImage(data),
     order: asNumber(data.order, index),
     translations: asObject(data.translations),
